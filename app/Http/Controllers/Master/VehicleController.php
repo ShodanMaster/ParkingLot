@@ -1,0 +1,46 @@
+<?php
+
+namespace App\Http\Controllers\Master;
+
+use App\Http\Controllers\Controller;
+use App\Models\Vehicle;
+use Exception;
+use Illuminate\Http\Request;
+
+class VehicleController extends Controller
+{
+    public function index(){
+        return view('master.vehicle');
+    }
+
+    public function store(Request $request){
+        // dd($request->all());
+
+        $request->validate([
+            'vehicleName' => 'required|string|max:255|unique:vehicles,name',
+        ]);
+
+        try{
+
+            Vehicle::create([
+                'name' => $request->vehicleName,
+            ]);
+
+            return response()->json([
+                'message' => 'Vehicle Created Successfully',
+            ], 200);
+
+        }catch (Exception $e) {
+
+            if (strpos($e->getMessage(), 'Duplicate entry') !== false) {
+                $message = 'Duplicate entry found. Please ensure the data is unique.';
+            } else {
+                $message = 'Something Went Wrong. Please try again later. ' . $e->getMessage();
+            }
+
+            return response()->json([
+                'message' => $message,
+            ], 500);
+        }
+    }
+}
