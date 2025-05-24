@@ -6,11 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\Vehicle;
 use Exception;
 use Illuminate\Http\Request;
+use Yajra\DataTables\DataTables;
 
 class VehicleController extends Controller
 {
     public function index(){
         return view('master.vehicle');
+    }
+
+    public function getVehicles(Request $request){
+
+        $vehicles = Vehicle::all();
+
+        if($request->ajax()){
+            return DataTables::of($vehicles)
+                ->addIndexColumn()
+                ->addColumn('action', function($row){
+                    $btn = '<button type="button" class="btn btn-danger btn-sm deleteVehicle" data-id="'.$row->id.'">Delete</button>';
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
     }
 
     public function store(Request $request){

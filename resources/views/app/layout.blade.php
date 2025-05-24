@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ParkingLot</title>
+    <link rel="stylesheet" href="{{asset('asset/datatable/dataTables.dataTables.min.css')}}">
     <link rel="stylesheet" href="{{asset('asset/bootstrap/bootstrap.min.css')}}">
 </head>
 <body>
@@ -39,7 +40,9 @@
         @yield('content')
     </div>
 
+    <script src="{{asset('asset/jquery/jquery.min.js')}}"></script>
     <script src="{{asset('asset/js/axios/axios.min.js')}}"></script>
+    <script src="{{asset('asset/datatable/dataTables.min.js')}}"></script>
     <script src="{{asset('asset/bootstrap/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('asset/js/sweetalert/sweetalert.min.js')}}"></script>
 
