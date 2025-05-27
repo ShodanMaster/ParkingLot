@@ -12,4 +12,8 @@ class Vehicle extends Model
     protected $fillable = [
         'name',
     ];
+
+    public function locations(){
+        return $this->hasMany(Location::class);
+    }
 }
