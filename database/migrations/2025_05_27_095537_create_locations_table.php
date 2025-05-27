@@ -17,6 +17,7 @@ return new class extends Migration
                 ->constrained('vehicles')
                 ->onDelete('cascade');
             $table->string('name')->unique();
+            $table->integer('capacity')->default(50);
             $table->timestamps();
         });
     }

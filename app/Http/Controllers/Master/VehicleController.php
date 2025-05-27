@@ -69,7 +69,11 @@ class VehicleController extends Controller
     }
 
     public function update(Request $request){
-        // dd($request->all());
+        $request->validate([
+            'id' => 'required|exists:vehicles,id',
+            'vehicleName' => 'required|string|max:255|unique:vehicles,name,' . $request->id . ',id',
+        ]);
+
         try{
             $vehicle = Vehicle::find($request->id);
 

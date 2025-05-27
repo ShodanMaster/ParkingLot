@@ -45,19 +45,24 @@
       <form id="editLocationForm">
         <input type="hidden" id="editId" name="id">
         <div class="modal-body">
-            <div class="mb-3">
-                <label for="editVehicleId" class="form-label">Vehicle</label>
-                <select name="vehicleId" id="editVehicleId" class="form-control" required>
-                    <option value="">Select Vehicle</option>
-                    @foreach($vehicles as $vehicle)
-                        <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
-                    @endforeach
-
-                </select>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="editVehicleId" class="form-label">Vehicle</label>
+                    <select name="vehicleId" id="editVehicleId" class="form-control" required>
+                        <option value="">Select Vehicle</option>
+                        @foreach($vehicles as $vehicle)
+                            <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="locationName" class="form-label">Location Name</label>
+                    <input type="text" class="form-control" id="editLocationName" name="locationName" required>
+                </div>
             </div>
             <div class="mb-3">
-                <label for="locationName" class="form-label">Location Name</label>
-                <input type="text" class="form-control" id="editLocationName" name="locationName" required>
+                <label for="capacity" class="form-label">Capacity</label>
+                <input type="number" min="1" class="form-control" id="editCapacity" name="capacity" required>
             </div>
         </div>
         <div class="modal-footer">
@@ -83,6 +88,7 @@
                 <th>#</th>
                 <th>Vehicle</th>
                 <th>Location Name</th>
+                <th>Capacity</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -127,7 +133,7 @@
         });
     }
 
-    function editLocation(id, vehicle,name) {
+    function editLocation(id, capacity, vehicle, name) {
 
         const vehicleSelect = document.getElementById('editVehicleId');
 
@@ -140,6 +146,7 @@
 
         document.getElementById('editId').value = id;
         document.getElementById('editLocationName').value = name;
+        document.getElementById('editCapacity').value = capacity;
     }
 
     $(document).ready(function () {
@@ -152,6 +159,7 @@
                 { data: 'DT_RowIndex', name: 'DT_RowIndex' },
                 { data: 'vehicle', name: 'vehicle' },
                 { data: 'location', name: 'location' },
+                { data: 'capacity', name: 'capacity' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ]
         });
@@ -212,11 +220,13 @@
             const id = document.getElementById('editId').value;
             const vehicleId = document.getElementById('editVehicleId').value;
             const locationName = document.getElementById('editLocationName').value;
+            const capacity = document.getElementById('editCapacity').value;
 
             axios.put('{{ route('master.location.update') }}', {
                 id: id,
                 vehicleId: vehicleId,
-                locationName: locationName
+                locationName: locationName,
+                capacity: capacity,
             }, {
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
