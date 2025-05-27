@@ -13,13 +13,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', [IndexController::class, 'index'])->name('dashboard');
 
     Route::prefix('master')->name('master.')->group(function () {
-        Route::get('/vehicle', [VehicleController::class, 'index'])->name('vehicle');
-        Route::get('/vehicle/getVehicles', [VehicleController::class, 'getVehicles'])->name('vehicle.getvehicles');
-        Route::get('/vehicle/create', [VehicleController::class, 'create'])->name('vehicle.create');
-        Route::post('/vehicle/store', [VehicleController::class, 'store'])->name('vehicle.store');
-        Route::get('/vehicle/edit/{id}', [VehicleController::class, 'edit'])->name('vehicle.edit');
-        Route::post('/vehicle/update/{id}', [VehicleController::class, 'update'])->name('vehicle.update');
-        Route::get('/vehicle/delete/{id}', [VehicleController::class, 'destroy'])->name('vehicle.delete');
+
+        route::prefix('vehicle')->name('vehicle.')->group(function () {
+            Route::get('/', [VehicleController::class, 'index'])->name('index');
+            Route::get('/getVehicles', [VehicleController::class, 'getVehicles'])->name('getvehicles');
+            Route::post('/store', [VehicleController::class, 'store'])->name('store');
+            Route::put('/update', [VehicleController::class, 'update'])->name('update');
+            Route::delete('/delete', [VehicleController::class, 'destroy'])->name('delete');
+        });
+
     });
 
 
