@@ -5,7 +5,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="addLocationModalLabel">Modal title</h1>
+        <h1 class="modal-title fs-5" id="addLocationModalLabel">Add Location</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form id="addLocationForm">
@@ -39,7 +39,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="editLocationModalLabel">Modal title</h1>
+        <h1 class="modal-title fs-5" id="editLocationModalLabel">Edit Location</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form id="editLocationForm">
@@ -93,6 +93,11 @@
 @endsection
 @section('script')
 <script>
+
+    document.getElementById('addLocationModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('addLocationForm').reset();
+    });
+
     function deleteLocation(id) {
         axios.delete(`{{ route('master.location.delete') }}`, {
             headers: {

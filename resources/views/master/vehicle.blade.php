@@ -5,7 +5,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="addVehicleModalLabel">Modal title</h1>
+        <h1 class="modal-title fs-5" id="addVehicleModalLabel">Add Vehicle</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form id="addVehicleForm">
@@ -29,7 +29,7 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5" id="editVehicleModalLabel">Modal title</h1>
+        <h1 class="modal-title fs-5" id="editVehicleModalLabel">Edit Vehicle</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form id="editVehicleForm">
@@ -72,6 +72,11 @@
 @endsection
 @section('script')
 <script>
+
+    document.getElementById('addVehicleModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('addVehicleForm').reset();
+    });
+
     function deleteVehicle(id) {
         axios.delete(`{{ route('master.vehicle.delete') }}`, {
             headers: {
