@@ -80,7 +80,7 @@
                         <td>{{$allocate->in_time}}</td>
                         <td>{{$allocate->out_time}}</td>
                         <td>{{$allocate->barcode}}</td>
-                        <td><a href="{{route('allocate.getprint', $allocate->id)}}" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a></td>
+                        {{-- <td><a href="{{route('allocate.getprint', $allocate->id)}}" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a></td> --}}
                     </tr>
                 @empty
                     <tr><td colspan="8" class="text-center text-muted">No Data Found</td></tr>
@@ -193,9 +193,35 @@
             }
         })
         .then(response => {
-            console.log(response);
-
+            if (response.data.status === 200) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.data.message || 'Data stored successfully!',
+                }).then(() => {
+                    // Optional: reload page, reset form, or redirect
+                    location.reload();
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.data.message || 'Something went wrong!',
+                });
+            }
         })
+        .catch(error => {
+            let message = 'An unexpected error occurred.';
+            if (error.response && error.response.data && error.response.data.message) {
+                message = error.response.data.message;
+            }
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Server Error',
+                text: message,
+            });
+        });
 
     });
 

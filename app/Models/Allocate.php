@@ -17,11 +17,15 @@ class Allocate extends Model
                                 ->orderBy('created_at', 'desc')
                                 ->first();
 
-        $lastNumber = $lastAllocate ? (int) substr($lastAllocate->barcode, -6) : 0;
+        $lastNumber = $lastAllocate ? (int) substr($lastAllocate->qrcode, -6) : 0;
         $nextNumber = $lastNumber + 1;
 
-        $nextBarcode = 'pl_' . $location_name .'_'. str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
+        $nextQrcode = 'pl_' . $location_name .'_'. str_pad($nextNumber, 6, '0', STR_PAD_LEFT);
 
-        return $nextBarcode;
+        return $nextQrcode;
+    }
+
+    public function location(){
+        return $this->belongsTo(Location::class);
     }
 }
