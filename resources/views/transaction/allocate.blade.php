@@ -1,0 +1,141 @@
+@extends('app.layout')
+@section('content')
+    <h1>Allocate</h1>
+    <div class="card shadow-lg">
+        <div class="card-header bg-primary text-white fs-4">
+            Allocate Form
+        </div>
+        <form action="" id="allocateForm">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="vehicle-number" class="form-label">Vehicle Number</label>
+                            <input type="text" class="form-control" name="vehicle_number" id="vehicle-number" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="vehicle" class="form-label">Vehicle:</label>
+                            <select class="form-control" name="vehicle_id" id="vehicle" required>
+                                <option value="" selected disabled>--Select Vehicle--</option>
+                                @foreach ($vehicles as $vehicle)
+                                    <option value="{{ encrypt($vehicle->id) }}">{{ $vehicle->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="location" class="form-label">Location:</label>
+                        <select class="form-control" name="location_id" id="location" required>
+                            <option value="" selected disabled>--Select Location--</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <div class="d-flex justify-content-between">
+                        <h5>Space Occupancy</h5>
+                        <div id="outOf">
+
+                        </div>
+                    </div>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar bg-secondary text-white" id="availableBar" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                            Select Location
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer d-flex justify-content-end">
+                <button type="submit" class="btn btn-primary" id="allocateButton">
+                    <span id="loadingText" style="display: none;">Allocating...</span>
+                    <span id="submitText">Allocate</span>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="overflow-auto">
+        <table class="table table-striped mt-3" id="dataTable">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Vehicle Number</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">In Time</th>
+                    <th scope="col">Out Time</th>
+                    <th scope="col">Barcode</th>
+                    <th>Get Print</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($allocates as $allocate)
+                    <tr>
+                        <td>{{$loop->iteration}}</td>
+                        <td>{{$allocate->vehicle_number}}</td>
+                        <td>{{$allocate->location->name}}</td>
+                        <td>{{$allocate->status}}</td>
+                        <td>{{$allocate->in_time}}</td>
+                        <td>{{$allocate->out_time}}</td>
+                        <td>{{$allocate->barcode}}</td>
+                        <td><a href="{{route('allocate.getprint', $allocate->id)}}" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a></td>
+                    </tr>
+                @empty
+                    <tr><td colspan="8" class="text-center text-muted">No Data Found</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+@endsection
+@section('script')
+<script>
+
+    document.getElementById('vehicle').addEventListener('change', function(e) {
+        const vehicleid = document.getElementById('vehicle').value;
+
+        axios.post('{{ route('allocate.fetchlocations') }}', {
+            vehicleId: vehicleid
+        }, {
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => {
+            const data = response.data;
+
+            if (data.status === 200) {
+                const locationSelect = document.getElementById('location');
+                locationSelect.innerHTML = '<option value="" selected disabled>--Select Location--</option>';
+
+                if (data.locations && data.locations.length > 0) {
+                    data.locations.forEach(location => {
+                        const option = document.createElement('option');
+                        option.value = location.id;
+                        option.textContent = location.name;
+                        locationSelect.appendChild(option);
+                    });
+                } else {
+                    locationSelect.innerHTML = '<option value="" selected disabled>--Select Location--</option><option value="" disabled>--No Locations Found--</option>';
+                }
+            } else {
+                console.error('Failed to Fetch Locations:', data.message || 'Unknown error');
+                locationSelect.innerHTML = '<option value="" selected disabled>--Select Location--</option><option value="" disabled>--Error Loading Data--</option>';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching locations:', error);
+            const locationSelect = document.getElementById('location');
+            locationSelect.innerHTML = '<option value="" selected disabled>--Select Location--</option><option value="" disabled>--Error Loading Data--</option>';
+        });
+    });
+
+    document.getElementById('allocateForm').addEventListener('submit', function(e){
+        e.preventDefault();
+
+        console.log('submitted');
+
+    });
+</script>
+@endsection

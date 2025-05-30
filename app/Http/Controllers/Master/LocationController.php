@@ -119,4 +119,21 @@ class LocationController extends Controller
             ], 500);
         }
     }
+
+    public function fetchLocations(Request $request){
+        try{
+            $locations = Location::where('vehicle_id', decrypt($request->vehicleId))->select('id', 'name')->orderBy('name')->get();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Locations Found',
+                'locations' => $locations
+            ]);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something Went Wrong '.$e->getMessage(),
+            ], 500);
+        }
+    }
 }

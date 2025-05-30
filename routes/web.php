@@ -4,6 +4,7 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Master\LocationController;
 use App\Http\Controllers\Master\VehicleController;
+use App\Http\Controllers\Transaction\AllocateController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [LoginController::class, 'index'])->name('login');
@@ -36,9 +37,12 @@ Route::group(['middleware' => 'auth'], function () {
 
         });
 
-        
     });
 
+    Route::prefix('allocate')->name('allocate.')->group(function(){
+        Route::get('/', [AllocateController::class, 'index'])->name('index');
+        Route::post('fetch-locations', [LocationController::class, 'fetchLocations'])->name('fetchlocations');
+    });
 
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
 });
