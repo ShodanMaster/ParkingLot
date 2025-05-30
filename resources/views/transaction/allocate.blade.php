@@ -37,7 +37,6 @@
                     <div class="d-flex justify-content-between">
                         <h5>Space Occupancy</h5>
                         <div id="outOf">
-
                         </div>
                     </div>
                     <div class="progress" style="height: 30px;">
@@ -71,20 +70,6 @@
                 </tr>
             </thead>
             <tbody>
-                {{-- @forelse ($allocates as $allocate)
-                    <tr>
-                        <td>{{$loop->iteration}}</td>
-                        <td>{{$allocate->vehicle_number}}</td>
-                        <td>{{$allocate->location->name}}</td>
-                        <td>{{$allocate->status}}</td>
-                        <td>{{$allocate->in_time}}</td>
-                        <td>{{$allocate->out_time}}</td>
-                        <td>{{$allocate->barcode}}</td>
-                        {{-- <td><a href="{{route('allocate.getprint', $allocate->id)}}" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a></td> --}}
-                    </tr>
-                {{-- @empty
-                    <tr><td colspan="8" class="text-center text-muted">No Data Found</td></tr>
-                @endforelse --}}
             </tbody>
         </table>
     </div>
@@ -224,6 +209,14 @@
                     document.getElementById('allocateForm').reset();
                     window.open(response.data.print_url, '_blank');
                     $('#allocateTable').DataTable().ajax.reload();
+
+                    const progressBar = document.getElementById('availableBar');
+                    progressBar.style.width = '100%';
+                    progressBar.setAttribute('aria-valuenow', 100);
+                    progressBar.textContent = 'Select Location';
+                    progressBar.className = 'progress-bar bg-secondary text-white';
+
+                    document.getElementById('outOf').innerHTML = '';
                 });
             } else {
                 Swal.fire({
