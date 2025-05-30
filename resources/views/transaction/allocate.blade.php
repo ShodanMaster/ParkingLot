@@ -131,11 +131,69 @@
         });
     });
 
+    document.getElementById('location').addEventListener('change', function(e) {
+        const locationId = document.getElementById('location').value;
+
+        axios.post('{{route('allocate.getslots')}}', {
+            locationId : locationId
+        }, {
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => {
+            console.log(response);
+            const data = response.data
+
+            if(data.status === 200){
+                if(data.slots.total_slots <= data.slots.slots_left){
+                    $('#allocateButton').prop('disabled', true);
+                    $('#outOf').html('');
+                    $('#outOf').append(`${data.slots.slots_left} / ${data.slots.total_slots} slots`);
+                    updateProgressBar(data.slots.total_slots, data.slots.slots_left);
+                }else{
+                    $('#allocateButton').prop('disabled', false);
+                    $('#outOf').html('');
+                    $('#outOf').append(`${data.slots.slots_left} / ${data.slots.total_slots} slots`);
+                    updateProgressBar(data.slots.total_slots, data.slots.slots_left);
+                }
+            }else{
+                console.error("Failed to Fetch Slosts");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching locations:', error);
+        })
+    });
+
     document.getElementById('allocateForm').addEventListener('submit', function(e){
         e.preventDefault();
 
         console.log('submitted');
 
     });
+
+    function updateProgressBar(totalSlots, slotsLeft) {
+        const percentageLeft = (slotsLeft / totalSlots) * 100;
+
+        const progressBar = document.getElementById('availableBar');
+
+        // Update progress bar styles and text
+        progressBar.style.width = `${percentageLeft}%`;
+        progressBar.setAttribute('aria-valuenow', percentageLeft.toFixed(0));
+        progressBar.textContent = `Space Occupied: ${percentageLeft.toFixed(0)}%`;
+
+        // Change bar color based on the percentage left
+        if (percentageLeft < 40) {
+            progressBar.classList.remove('bg-danger', 'bg-warning');
+            progressBar.classList.add('bg-success');
+        } else if (percentageLeft < 70) {
+            progressBar.classList.remove('bg-success', 'bg-danger');
+            progressBar.classList.add('bg-warning');
+        } else {
+            progressBar.classList.remove('bg-warning', 'bg-success');
+            progressBar.classList.add('bg-danger');
+        }
+    }
 </script>
 @endsection

@@ -41,7 +41,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::prefix('allocate')->name('allocate.')->group(function(){
         Route::get('/', [AllocateController::class, 'index'])->name('index');
+
         Route::post('fetch-locations', [LocationController::class, 'fetchLocations'])->name('fetchlocations');
+        Route::post('get-slots', [AllocateController::class, 'getSlots'])->name('getslots');
     });
 
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
