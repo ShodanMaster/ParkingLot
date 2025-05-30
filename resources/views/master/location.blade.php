@@ -61,8 +61,8 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="capacity" class="form-label">Capacity</label>
-                <input type="number" min="1" class="form-control" id="editCapacity" name="capacity" required>
+                <label for="slot" class="form-label">Slot</label>
+                <input type="number" min="1" class="form-control" id="editSlot" name="slot" required>
             </div>
         </div>
         <div class="modal-footer">
@@ -88,7 +88,7 @@
                 <th>#</th>
                 <th>Vehicle</th>
                 <th>Location Name</th>
-                <th>Capacity</th>
+                <th>Slot</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -133,7 +133,7 @@
         });
     }
 
-    function editLocation(id, capacity, vehicle, name) {
+    function editLocation(id, slot, vehicle, name) {
 
         const vehicleSelect = document.getElementById('editVehicleId');
 
@@ -146,7 +146,7 @@
 
         document.getElementById('editId').value = id;
         document.getElementById('editLocationName').value = name;
-        document.getElementById('editCapacity').value = capacity;
+        document.getElementById('editSlot').value = slot;
     }
 
     $(document).ready(function () {
@@ -159,7 +159,7 @@
                 { data: 'DT_RowIndex', name: 'DT_RowIndex' },
                 { data: 'vehicle', name: 'vehicle' },
                 { data: 'location', name: 'location' },
-                { data: 'capacity', name: 'capacity' },
+                { data: 'slot', name: 'slot' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ]
         });
@@ -220,13 +220,13 @@
             const id = document.getElementById('editId').value;
             const vehicleId = document.getElementById('editVehicleId').value;
             const locationName = document.getElementById('editLocationName').value;
-            const capacity = document.getElementById('editCapacity').value;
+            const slot = document.getElementById('editSlot').value;
 
             axios.put('{{ route('master.location.update') }}', {
                 id: id,
                 vehicleId: vehicleId,
                 locationName: locationName,
-                capacity: capacity,
+                slot: slot,
             }, {
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'

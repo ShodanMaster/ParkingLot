@@ -24,7 +24,7 @@ class LocationController extends Controller
                 'id' => $l->id,
                 'vehicle' => $l->vehicle->name,
                 'location' => $l->name,
-                'capacity' => $l->capacity,
+                'slot' => $l->slot,
             ];
         });
 
@@ -34,7 +34,7 @@ class LocationController extends Controller
                 ->addColumn('action', function ($row) {
                     $btn = '
                         <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#editLocationModal" onclick="editLocation('
-                            . $row['id'] . ', '.$row['capacity'].',
+                            . $row['id'] . ', '.$row['slot'].',
                             \''
                             . htmlspecialchars($row['vehicle'], ENT_QUOTES, 'UTF-8') . '\', \''
                             . htmlspecialchars($row['location'], ENT_QUOTES, 'UTF-8') . '\')">Edit</button>
@@ -78,7 +78,7 @@ class LocationController extends Controller
             'id' => 'required|exists:locations,id',
             'vehicleId' => 'required|exists:vehicles,id',
             'locationName' => 'required|string|max:255|unique:locations,name,' . $request->id . ',id',
-            'capacity' => 'nullable|integer|max:100',
+            'slot' => 'nullable|integer|max:100',
         ]);
 
         try {
@@ -87,7 +87,7 @@ class LocationController extends Controller
             $location->update([
                 'vehicle_id' => $request->vehicleId,
                 'name' => $request->locationName,
-                'capacity' => $request->capacity,
+                'slot' => $request->slot,
             ]);
 
             return response()->json([

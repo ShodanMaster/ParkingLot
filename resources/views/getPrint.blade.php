@@ -26,9 +26,6 @@
 </head>
 <body>
     <div class="allocation-info">
-        <h2>Allocation Details</h2>
-        <!-- Display the QR code -->
-        {{-- {{$allocate->QRCode->path}} --}}
         <div class="qr-code">
             <img src="{{asset($allocate->QRCode->path)}}" alt="NO_QR">
         </div>
@@ -40,11 +37,18 @@
     </div>
 
     <script>
-        // Automatically trigger print dialog when the page is loaded
-        window.print();
-        window.onafterprint = function() {
-            window.close();
-        }
+        window.onload = function () {
+            setTimeout(function () {
+                window.print();
+            }, 500);
+        };
+
+        window.onafterprint = function () {
+            
+            setTimeout(function () {
+                window.close();
+            }, 500);
+        };
     </script>
 </body>
 </html>

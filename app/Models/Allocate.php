@@ -28,4 +28,8 @@ class Allocate extends Model
     public function location(){
         return $this->belongsTo(Location::class);
     }
+
+    public function QRCode(){
+        return $this->hasOne(QrCode::class);
+    }
 }

@@ -66,7 +66,7 @@
                     <th scope="col">Status</th>
                     <th scope="col">In Time</th>
                     <th scope="col">Out Time</th>
-                    <th scope="col">Barcode</th>
+                    <th scope="col">Qrcode</th>
                     <th>Get Print</th>
                 </tr>
             </thead>
@@ -97,9 +97,15 @@
             processing: true,
             serverSide: true,
             ajax: '{{ route('allocate.getallocates') }}',
+            pageLength: 5,
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex' },
-                { data: 'name', name: 'name' },
+                { data: 'vehicle_number', name: 'vehicle_number' },
+                { data: 'location', name: 'location' },
+                { data: 'status', name: 'status' },
+                { data: 'in_time', name: 'in_time' },
+                { data: 'out_time', name: 'out_time' },
+                { data: 'qrcode', name: 'qrcode' },
                 { data: 'action', name: 'action', orderable: false, searchable: false }
             ]
         });
@@ -211,9 +217,13 @@
                     icon: 'success',
                     title: 'Success',
                     text: response.data.message || 'Data stored successfully!',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
                 }).then(() => {
-
-                    location.reload();
+                    document.getElementById('allocateForm').reset();
+                    window.open(response.data.print_url, '_blank');
+                    $('#allocateTable').DataTable().ajax.reload();
                 });
             } else {
                 Swal.fire({

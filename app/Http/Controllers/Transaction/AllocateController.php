@@ -18,36 +18,39 @@ class AllocateController extends Controller
 {
     public function index(){
         $vehicles = Vehicle::orderBy('name')->get();
-        $allocates = Allocate::limit(5)->latest()->get();
-        return view('transaction.allocate', compact( 'vehicles', 'allocates'));
+        return view('transaction.allocate', compact( 'vehicles'));
     }
 
     public function getAllocates(Request $request){
 
-        if($request->ajax()){
+        if ($request->ajax()) {
             $allocates = Allocate::with('location')->latest()->get();
-
-            $data = $allocates->map(function($allocate){
-                return [
-                    'id' => $allocate->id,
-                    'location' => $allocate->location->name,
-                    'status' => $allocate->status,
-                    'in_time' => $allocate->in_time,
-                    'out_time' => $allocate->out_time,
-                    'qrcode' => $allocate->qrcode,
-                ];
-            });
-
-            return DataTables::of($data)
+            return DataTables::of($allocates)
                 ->addIndexColumn()
-                ->addColumn('action', function ($row) {
-                    $printRoute = route('allocate.getprint', $row->id);
-                    return '<td><a href="' . $printRoute . '" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a></td>';
+                ->addColumn('location', function ($allocate) {
+                    return $allocate->location->name;
+                })
+                ->addColumn('action', function ($allocate) {
+                    $printRoute = route('allocate.getprint', $allocate->id);
+                    return '<a href="' . $printRoute . '" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a>';
+                })
+                ->editColumn('status', function ($allocate) {
+                    return $allocate->status;
+                })
+                ->editColumn('in_time', function ($allocate) {
+                    return $allocate->in_time;
+                })
+                ->editColumn('out_time', function ($allocate) {
+                    return !empty($allocate->out_time) ? $allocate->out_time : 'not yet out';
+                })
+                ->editColumn('qrcode', function ($allocate) {
+                    return $allocate->qrcode;
                 })
                 ->rawColumns(['action'])
                 ->make(true);
         }
     }
+
 
     public function store(Request $request){
 
@@ -79,7 +82,7 @@ class AllocateController extends Controller
                 'vehicle_number' => $validated['vehicleNumber'],
                 'qrcode' => Allocate::codeGenerator($validated['locationId']),
             ]);
-
+            // dd($allocate);
             $qrCode = QrCode::format('png')->size(200)->generate($allocate->qrcode);
 
             $fileName = 'qr_code_' . $allocate->qrcode . '.png';
@@ -96,6 +99,7 @@ class AllocateController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Allocated successfully',
+                'print_url' => route('allocate.getprint', ['allocate' => $allocate]),
             ]);
 
         }catch(Exception $e){

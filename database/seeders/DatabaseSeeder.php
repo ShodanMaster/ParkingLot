@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'username' => 'admin',
             'password' => bcrypt('admin@123'),
+            'type' => 'admin',
         ]);
 
         User::create(attributes: [
