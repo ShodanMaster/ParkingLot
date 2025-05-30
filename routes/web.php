@@ -41,10 +41,12 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::prefix('allocate')->name('allocate.')->group(function(){
         Route::get('/', [AllocateController::class, 'index'])->name('index');
+        Route::post('get-allocates', [AllocateController::class, 'getAllocates'])->name('getallocates');
         Route::post('/store', [AllocateController::class, 'store'])->name('store');
 
         Route::post('fetch-locations', [LocationController::class, 'fetchLocations'])->name('fetchlocations');
         Route::post('get-slots', [AllocateController::class, 'getSlots'])->name('getslots');
+        Route::get('/print/{allocate}', [AllocateController::class, 'getPrint'])->name('getprint');
     });
 
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');

@@ -57,7 +57,7 @@
     </div>
 
     <div class="overflow-auto">
-        <table class="table table-striped mt-3" id="dataTable">
+        <table class="table table-striped mt-3" id="allocateTable">
             <thead>
                 <tr>
                     <th scope="col">#</th>
@@ -71,7 +71,7 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse ($allocates as $allocate)
+                {{-- @forelse ($allocates as $allocate)
                     <tr>
                         <td>{{$loop->iteration}}</td>
                         <td>{{$allocate->vehicle_number}}</td>
@@ -82,15 +82,28 @@
                         <td>{{$allocate->barcode}}</td>
                         {{-- <td><a href="{{route('allocate.getprint', $allocate->id)}}" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a></td> --}}
                     </tr>
-                @empty
+                {{-- @empty
                     <tr><td colspan="8" class="text-center text-muted">No Data Found</td></tr>
-                @endforelse
+                @endforelse --}}
             </tbody>
         </table>
     </div>
 @endsection
 @section('script')
 <script>
+    $(document).ready(function () {
+
+        const table = $('#allocateTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{{ route('allocate.getallocates') }}',
+            columns: [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex' },
+                { data: 'name', name: 'name' },
+                { data: 'action', name: 'action', orderable: false, searchable: false }
+            ]
+        });
+    });
 
     document.getElementById('vehicle').addEventListener('change', function(e) {
         const vehicleid = document.getElementById('vehicle').value;
@@ -199,7 +212,7 @@
                     title: 'Success',
                     text: response.data.message || 'Data stored successfully!',
                 }).then(() => {
-                    // Optional: reload page, reset form, or redirect
+
                     location.reload();
                 });
             } else {

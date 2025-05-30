@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Yajra\DataTables\DataTables;
 
 class AllocateController extends Controller
 {
@@ -19,6 +20,33 @@ class AllocateController extends Controller
         $vehicles = Vehicle::orderBy('name')->get();
         $allocates = Allocate::limit(5)->latest()->get();
         return view('transaction.allocate', compact( 'vehicles', 'allocates'));
+    }
+
+    public function getAllocates(Request $request){
+
+        if($request->ajax()){
+            $allocates = Allocate::with('location')->latest()->get();
+
+            $data = $allocates->map(function($allocate){
+                return [
+                    'id' => $allocate->id,
+                    'location' => $allocate->location->name,
+                    'status' => $allocate->status,
+                    'in_time' => $allocate->in_time,
+                    'out_time' => $allocate->out_time,
+                    'qrcode' => $allocate->qrcode,
+                ];
+            });
+
+            return DataTables::of($data)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+                    $printRoute = route('allocate.getprint', $row->id);
+                    return '<td><a href="' . $printRoute . '" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a></td>';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
     }
 
     public function store(Request $request){
@@ -103,6 +131,38 @@ class AllocateController extends Controller
                 'message' => 'Something Went Wrong!: '.$e->getMessage()
             ], 500);
         }
+    }
+
+    public function getPrint(Allocate $allocate){
+
+        if (!$allocate->QRCode) {
+            $qrCode = QrCode::format('png')->size(200)->generate($allocate->qrcode);
+
+            $fileName = 'qr_code_' . $allocate->qrcode . '.png';
+            $path = Storage::disk('public')->put('qr_codes/' . $fileName, $qrCode);
+            $qrCodeUrl = Storage::url('qr_codes/' . $fileName);
+
+            ModelsQRCode::create([
+                'allocate_id' => $allocate->id,
+                'path' => $qrCodeUrl,
+            ]);
+        } else {
+            $filePath = str_replace('/storage', '', $allocate->QRCode->path);
+
+            if (!Storage::disk('public')->exists($filePath)) {
+                $qrCode = QrCode::format('png')->size(200)->generate($allocate->qrcode);
+
+                $fileName = 'qr_code_' . $allocate->qrcode . '.png';
+                $path = Storage::disk('public')->put('qr_codes/' . $fileName, $qrCode);
+                $qrCodeUrl = Storage::url('qr_codes/' . $fileName);
+
+                $allocate->QRCode->update([
+                    'path' => $qrCodeUrl,
+                ]);
+            }
+        }
+
+        return view('getPrint', compact('allocate'));
     }
 
 }
