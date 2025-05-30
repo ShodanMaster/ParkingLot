@@ -20,7 +20,7 @@
                             <select class="form-control" name="vehicle_id" id="vehicle" required>
                                 <option value="" selected disabled>--Select Vehicle--</option>
                                 @foreach ($vehicles as $vehicle)
-                                    <option value="{{ encrypt($vehicle->id) }}">{{ $vehicle->name }}</option>
+                                    <option value="{{ $vehicle->id }}">{{ $vehicle->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -169,7 +169,33 @@
     document.getElementById('allocateForm').addEventListener('submit', function(e){
         e.preventDefault();
 
-        console.log('submitted');
+        const vehicleNumber = document.getElementById('vehicle-number').value;
+        const vehicleId = document.getElementById('vehicle').value;
+        const locationId = document.getElementById('location').value;
+
+        if (!vehicleNumber || !vehicleId || !locationId) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Missing Fields',
+                text: 'Please enter all the required fields.',
+                confirmButtonText: 'OK'
+            });
+        }
+
+        axios.post('{{route('allocate.store')}}', {
+            vehicleNumber : vehicleNumber,
+            vehicleId : vehicleId,
+            locationId : locationId,
+
+        }, {
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => {
+            console.log(response);
+
+        })
 
     });
 

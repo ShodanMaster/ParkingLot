@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('status',['IN', 'OUT'])->default('IN');
             $table->timestamp('in_time')->useCurrent();
             $table->timestamp('out_time')->nullable();
-            $table->string('barcode')->unique();
+            $table->string('qrcode')->unique();
             $table->timestamps();
         });
     }

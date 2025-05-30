@@ -122,7 +122,7 @@ class LocationController extends Controller
 
     public function fetchLocations(Request $request){
         try{
-            $locations = Location::where('vehicle_id', decrypt($request->vehicleId))->select('id', 'name')->orderBy('name')->get();
+            $locations = Location::where('vehicle_id', $request->vehicleId)->select('id', 'name')->orderBy('name')->get();
 
             return response()->json([
                 'status' => 200,
