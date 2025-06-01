@@ -81,7 +81,7 @@
         const table = $('#allocateTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{{ route('allocate.getallocates') }}',
+            ajax: '{{ route('transaction.allocate.getallocates') }}',
             pageLength: 5,
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex' },
@@ -99,7 +99,7 @@
     document.getElementById('vehicle').addEventListener('change', function(e) {
         const vehicleid = document.getElementById('vehicle').value;
 
-        axios.post('{{ route('allocate.fetchlocations') }}', {
+        axios.post('{{ route('transaction.allocate.fetchlocations') }}', {
             vehicleId: vehicleid
         }, {
             headers: {
@@ -138,7 +138,7 @@
     document.getElementById('location').addEventListener('change', function(e) {
         const locationId = document.getElementById('location').value;
 
-        axios.post('{{route('allocate.getslots')}}', {
+        axios.post('{{route('transaction.allocate.getslots')}}', {
             locationId : locationId
         }, {
             headers: {
@@ -186,7 +186,7 @@
             });
         }
 
-        axios.post('{{route('allocate.store')}}', {
+        axios.post('{{route('transaction.allocate.store')}}', {
             vehicleNumber : vehicleNumber,
             vehicleId : vehicleId,
             locationId : locationId,

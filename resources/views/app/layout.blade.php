@@ -25,8 +25,14 @@
                         <li><a class="dropdown-item" href="{{route('master.location.index')}}">Location Management</a></li>
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{route('allocate.index')}}">Allocate</a>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Transaction
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{route('transaction.allocate.index')}}">Allocate</a></li>
+                        <li><a class="dropdown-item" href="{{route('transaction.scan.index')}}">Scan Out</a></li>
+                    </ul>
                 </li>
             </ul>
                 <a href="{{route('logout')}}"><button class="btn btn-outline-danger" type="submit">Logout</button></a>

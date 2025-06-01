@@ -31,7 +31,7 @@ class AllocateController extends Controller
                     return $allocate->location->name;
                 })
                 ->addColumn('action', function ($allocate) {
-                    $printRoute = route('allocate.getprint', $allocate->id);
+                    $printRoute = route('transaction.allocate.getprint', $allocate->id);
                     return '<a href="' . $printRoute . '" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a>';
                 })
                 ->editColumn('status', function ($allocate) {
@@ -99,7 +99,7 @@ class AllocateController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Allocated successfully',
-                'print_url' => route('allocate.getprint', ['allocate' => $allocate]),
+                'print_url' => route('transaction.allocate.getprint', ['allocate' => $allocate]),
             ]);
 
         }catch(Exception $e){
