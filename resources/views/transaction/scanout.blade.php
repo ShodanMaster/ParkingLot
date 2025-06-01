@@ -6,7 +6,6 @@
             Scan Out
         </div>
         <form>
-            @csrf
             <div class="card-body">
                 <div class="form-group">
                     <label for="code" class="form-label">Code:</label>
@@ -20,16 +19,27 @@
 @section('scripts')
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            const codeInput = document.getElementById("code");
+    const codeInput = document.getElementById("code");
 
-            codeInput.addEventListener("input", function () {
-                axios.post('{{route('transaction.scan.scanout')}}', {
-                    header: "{{csrf_token()}}"
-                },
-                {
-                    
-                })
-            });
+    codeInput.addEventListener("input", function () {
+        const code = codeInput.value;
+        console.log("Code input:", code);
+
+        axios.post('{{ route('transaction.scan.scanout') }}', {
+            code: code
+        }, {
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => {
+            console.log("Response:", response.data);
+        })
+        .catch(error => {
+            console.error("Error:", error);
         });
+    });
+});
+
     </script>
 @endsection
