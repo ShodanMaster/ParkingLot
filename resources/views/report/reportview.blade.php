@@ -1,5 +1,9 @@
 @extends('app.layout')
 @section('content')
+    <div class="d-flex justify-content-end mb-1">
+        <button type="button" class="btn btn-sm btn-danger" id="pdf">PDF</button>
+        <button type="button" class="btn btn-sm btn-success mx-2" id="excel">Excel</button>
+    </div>
     <div class="card">
         <div class="card-header bg-primary text-white fs-4">
             Report
@@ -72,5 +76,47 @@
             });
 
         });
+
+        document.getElementById('pdf').addEventListener('click', function(e){
+            e.preventDefault();
+
+            const fromDate = @json($fromDate);
+            const toDate = @json($toDate);
+            const qrcode = @json($qrcode);
+            const vehicleNumber = @json($vehicleNumber);
+            const location = @json($location);
+            const status = @json($status);
+            const inTimeFrom = @json($inTimeFrom);
+            const inTimeTo = @json($inTimeTo);
+            const outTimeFrom = @json($outTimeFrom);
+            const outTimeTo = @json($outTimeTo);
+
+            axios.post('{{ route('report.reportview') }}', {
+                from_date : fromDate,
+                to_date : toDate,
+                qrcode : qrcode,
+                vehicle_number : vehicleNumber,
+                location : location,
+                status : status,
+                inTimeFrom : inTimeFrom,
+                inTimeTo : inTimeTo,
+                outTimeFrom : outTimeFrom,
+                outTimeTo : outTimeTo,
+                action : 2,
+            }, {
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                }
+            })
+            .then(response => {
+                console.log(response.data);
+                // handle PDF download or redirection here
+            })
+            .catch(error => {
+                console.error("Error generating PDF:", error);
+            });
+
+        });
+
     </script>
 @endsection

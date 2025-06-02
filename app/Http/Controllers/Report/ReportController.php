@@ -30,9 +30,7 @@ class ReportController extends Controller
             $inTimeTo = $request->inTimeTo;
             $outTimeFrom = $request->outTimeFrom;
             $outTimeTo = $request->outTimeTo;
-
-
-
+            
             if($request->action == 1){
                 return view('report.reportview', compact('fromDate', 'toDate', 'qrcode', 'vehicleNumber', 'inTimeFrom', 'location', 'status','inTimeTo','outTimeFrom', 'outTimeTo'));
             }
