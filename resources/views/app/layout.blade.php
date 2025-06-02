@@ -35,7 +35,7 @@
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Report</a>
+                    <a class="nav-link" href="{{route('report.report')}}">Report</a>
                 </li>
             </ul>
                 <a href="{{route('logout')}}"><button class="btn btn-outline-danger" type="submit">Logout</button></a>

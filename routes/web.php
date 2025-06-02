@@ -4,6 +4,7 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Master\LocationController;
 use App\Http\Controllers\Master\VehicleController;
+use App\Http\Controllers\Report\ReportController;
 use App\Http\Controllers\Transaction\ScanInController;
 use App\Http\Controllers\Transaction\ScanOutController;
 use Illuminate\Support\Facades\Route;
@@ -54,6 +55,13 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('/scan-out', [ScanOutController::class, 'index'])->name('scanout');
         Route::post('scanning-out', [ScanOutController::class, 'scanOut'])->name('scanningout');
 
+    });
+
+    Route::prefix('report')->name('report.')->group(function () {
+
+        Route::get('report', [ReportController::class, 'index'])->name('report');
+        Route::post('report-view', [ReportController::class, 'store'])->name('reportview');
+        Route::post('get-report', [ReportController::class, 'getReports'])->name('getreports');
     });
 
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');

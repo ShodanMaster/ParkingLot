@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Transaction;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ScanOutRequest;
 use App\Models\Allocate;
 use Exception;
 use Illuminate\Http\Request;
@@ -13,7 +14,7 @@ class ScanOutController extends Controller
         return view('transaction.scanout');
     }
 
-    public function scanOut(Request $request){
+    public function scanOut(ScanOutRequest $request){
 
         $validated = $request->validate([
             'code' => 'required|string'
