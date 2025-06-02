@@ -170,12 +170,16 @@
         })
     });
 
-    document.getElementById('allocateForm').addEventListener('submit', function(e){
+    document.getElementById('allocateForm').addEventListener('submit', function(e) {
         e.preventDefault();
 
         const vehicleNumber = document.getElementById('vehicle-number').value;
         const vehicleId = document.getElementById('vehicle').value;
         const locationId = document.getElementById('location').value;
+
+        const submitButton = document.getElementById('allocateButton');
+        const loadingText = document.getElementById('loadingText');
+        const submitText = document.getElementById('submitText');
 
         if (!vehicleNumber || !vehicleId || !locationId) {
             Swal.fire({
@@ -184,13 +188,17 @@
                 text: 'Please enter all the required fields.',
                 confirmButtonText: 'OK'
             });
+            return;
         }
 
-        axios.post('{{route('transaction.allocate.store')}}', {
-            vehicleNumber : vehicleNumber,
-            vehicleId : vehicleId,
-            locationId : locationId,
+        submitButton.disabled = true;
+        loadingText.style.display = 'inline-block';
+        submitText.style.display = 'none';
 
+        axios.post('{{route('transaction.allocate.store')}}', {
+            vehicleNumber: vehicleNumber,
+            vehicleId: vehicleId,
+            locationId: locationId,
         }, {
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
@@ -237,8 +245,12 @@
                 title: 'Server Error',
                 text: message,
             });
+        })
+        .finally(() => {
+            submitButton.disabled = false;
+            loadingText.style.display = 'none';
+            submitText.style.display = 'inline';
         });
-
     });
 
     function updateProgressBar(totalSlots, slotsLeft) {

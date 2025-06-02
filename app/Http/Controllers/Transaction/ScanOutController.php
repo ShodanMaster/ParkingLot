@@ -14,10 +14,14 @@ class ScanOutController extends Controller
     }
 
     public function scanOut(Request $request){
-        // dd($request->all());
+
+        $validated = $request->validate([
+            'code' => 'required|string'
+        ]);
+
         try{
-            $allocate = Allocate::where('qrcode', $request->code)->first();
-            
+            $allocate = Allocate::where('qrcode', $validated['code'])->first();
+
             if($allocate && $allocate->out_time != null){
                 return response()->json([
                     'status' => 400,
