@@ -8,38 +8,66 @@
         <form>
             <div class="card-body">
                 <div class="form-group">
-                    <label for="code" class="form-label">Code:</label>
+                    <label for="codee" class="form-label">Code:</label>
                     <input type="text" class="form-control" name="code" id="code" autocomplete="off">
                 </div>
             </div>
         </form>
     </div>
-@endsection
 
-@section('scripts')
-    <script>
+     <script>
         document.addEventListener("DOMContentLoaded", function () {
-    const codeInput = document.getElementById("code");
+            const codeInput = document.getElementById("code");
 
-    codeInput.addEventListener("input", function () {
-        const code = codeInput.value;
-        console.log("Code input:", code);
+            codeInput.addEventListener("input", function () {
+                const code = codeInput.value;
+                console.log("Code input:", code);
 
-        axios.post('{{ route('transaction.scan.scanout') }}', {
-            code: code
-        }, {
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            }
-        })
-        .then(response => {
-            console.log("Response:", response.data);
-        })
-        .catch(error => {
-            console.error("Error:", error);
+                axios.post('{{ route('transaction.scan.scanout') }}', {
+                    code: code
+                }, {
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => {
+                    console.log("Response:", response.data);
+                    if(response.data.status ===200 ){
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success',
+                            text: response.data.message || 'Scanned Out',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true
+                        }).then(()=> {
+                            codeInput.value = '';
+
+                        });
+                    }else{
+                        codeInput.value = '';
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.data.message || 'Something went wrong!',
+                        });
+                    }
+                })
+                .catch(error => {
+                    let message = 'An unexpected error occurred.';
+                    if (error.response && error.response.data && error.response.data.message) {
+                        message = error.response.data.message;
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: message,
+                    });
+                });
+            });
         });
-    });
-});
 
     </script>
 @endsection
