@@ -23,7 +23,7 @@
                 const code = codeInput.value;
                 console.log("Code input:", code);
 
-                axios.post('{{ route('transaction.scan.scanout') }}', {
+                axios.post('{{ route('transaction.scanningout') }}', {
                     code: code
                 }, {
                     headers: {

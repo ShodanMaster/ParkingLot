@@ -1,9 +1,9 @@
 @extends('app.layout')
 @section('content')
-    <h1>Allocate</h1>
+    <h1>Scan In</h1>
     <div class="card shadow-lg">
         <div class="card-header bg-primary text-white fs-4">
-            Allocate Form
+            Scan In
         </div>
         <form action="" id="allocateForm">
             <div class="card-body">
@@ -81,7 +81,7 @@
         const table = $('#allocateTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{{ route('transaction.allocate.getallocates') }}',
+            ajax: '{{ route('transaction.getallocates') }}',
             pageLength: 5,
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex' },
@@ -98,8 +98,8 @@
 
     document.getElementById('vehicle').addEventListener('change', function(e) {
         const vehicleid = document.getElementById('vehicle').value;
-
-        axios.post('{{ route('transaction.allocate.fetchlocations') }}', {
+        resetProgressBar();
+        axios.post('{{ route('transaction.fetchlocations') }}', {
             vehicleId: vehicleid
         }, {
             headers: {
@@ -138,36 +138,34 @@
     document.getElementById('location').addEventListener('change', function(e) {
         const locationId = document.getElementById('location').value;
 
-        axios.post('{{route('transaction.allocate.getslots')}}', {
-            locationId : locationId
+        axios.post('{{ route('transaction.getslots') }}', {
+            locationId: locationId
         }, {
             headers: {
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
         })
         .then(response => {
-            console.log(response);
-            const data = response.data
+            const data = response.data;
 
-            if(data.status === 200){
-                if(data.slots.total_slots <= data.slots.slots_left){
-                    $('#allocateButton').prop('disabled', true);
-                    $('#outOf').html('');
-                    $('#outOf').append(`${data.slots.slots_left} / ${data.slots.total_slots} slots`);
-                    updateProgressBar(data.slots.total_slots, data.slots.slots_left);
-                }else{
-                    $('#allocateButton').prop('disabled', false);
-                    $('#outOf').html('');
-                    $('#outOf').append(`${data.slots.slots_left} / ${data.slots.total_slots} slots`);
-                    updateProgressBar(data.slots.total_slots, data.slots.slots_left);
-                }
-            }else{
-                console.error("Failed to Fetch Slosts");
+            if (data.status === 200) {
+                const total = data.slots.total_slots;
+                const occupied = data.slots.occupied_slots;
+                const available = data.slots.available_slots;
+
+                $('#outOf').html(`${occupied} / ${total} slots occupied`);
+
+                $('#allocateButton').prop('disabled', available <= 0);
+
+                updateProgressBar(total, occupied);
+
+            } else {
+                console.error("Failed to fetch slots.");
             }
         })
         .catch(error => {
-            console.error('Error fetching locations:', error);
-        })
+            console.error('Error fetching slot data:', error);
+        });
     });
 
     document.getElementById('allocateForm').addEventListener('submit', function(e) {
@@ -195,7 +193,7 @@
         loadingText.style.display = 'inline-block';
         submitText.style.display = 'none';
 
-        axios.post('{{route('transaction.allocate.store')}}', {
+        axios.post('{{route('transaction.scanningin')}}', {
             vehicleNumber: vehicleNumber,
             vehicleId: vehicleId,
             locationId: locationId,
@@ -218,15 +216,28 @@
                     window.open(response.data.print_url, '_blank');
                     $('#allocateTable').DataTable().ajax.reload();
 
-                    const progressBar = document.getElementById('availableBar');
-                    progressBar.style.width = '100%';
-                    progressBar.setAttribute('aria-valuenow', 100);
-                    progressBar.textContent = 'Select Location';
-                    progressBar.className = 'progress-bar bg-secondary text-white';
-
-                    document.getElementById('outOf').innerHTML = '';
+                    resetProgressBar();
                 });
-            } else {
+            }
+            else if(response.data.status ===409){
+                 Swal.fire({
+                    icon: 'warning',
+                    title: 'Warning',
+                    text: response.data.message || 'Already In',
+                    confirmButtonText: 'Yes, continue',
+                    cancelButtonText: 'Cancel',
+                    showConfirmButton: true,
+                    showCancelButton: true
+                }).then((result) => {
+                    if (result.isConfirmed){
+                        allocatedVehicle(vehicleNumber, vehicleId, locationId);
+                    }
+                    else{
+                        return;
+                    }
+                });
+            }
+            else {
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -253,27 +264,72 @@
         });
     });
 
-    function updateProgressBar(totalSlots, slotsLeft) {
-        const percentageLeft = (slotsLeft / totalSlots) * 100;
+    function updateProgressBar(totalSlots, occupiedSlots) {
+        const percentageOccupied = (occupiedSlots / totalSlots) * 100;
 
         const progressBar = document.getElementById('availableBar');
 
-        // Update progress bar styles and text
-        progressBar.style.width = `${percentageLeft}%`;
-        progressBar.setAttribute('aria-valuenow', percentageLeft.toFixed(0));
-        progressBar.textContent = `Space Occupied: ${percentageLeft.toFixed(0)}%`;
+        progressBar.style.width = `${percentageOccupied}%`;
+        progressBar.setAttribute('aria-valuenow', percentageOccupied.toFixed(0));
+        progressBar.textContent = `${percentageOccupied.toFixed(0)}% Occupied`;
 
-        // Change bar color based on the percentage left
-        if (percentageLeft < 40) {
-            progressBar.classList.remove('bg-danger', 'bg-warning');
+        // Update bar color based on % occupied
+        progressBar.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+
+        if (percentageOccupied < 40) {
             progressBar.classList.add('bg-success');
-        } else if (percentageLeft < 70) {
-            progressBar.classList.remove('bg-success', 'bg-danger');
+        } else if (percentageOccupied < 70) {
             progressBar.classList.add('bg-warning');
         } else {
-            progressBar.classList.remove('bg-warning', 'bg-success');
             progressBar.classList.add('bg-danger');
         }
+    }
+
+    function resetProgressBar(){
+        const progressBar = document.getElementById('availableBar');
+        progressBar.style.width = '100%';
+        progressBar.setAttribute('aria-valuenow', 100);
+        progressBar.textContent = 'Select Location';
+        progressBar.className = 'progress-bar bg-secondary text-white';
+
+        document.getElementById('outOf').innerHTML = '';
+    }
+
+    function allocatedVehicle(vehicleNumber, vehicleId, locationId){
+        axios.post('{{route('transaction.allocatedvehcile')}}', {
+            vehicleNumber: vehicleNumber,
+            vehicleId: vehicleId,
+            locationId: locationId,
+        }, {
+            headers : {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then((response) => {
+
+            if(response.data.status === 200){
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: response.data.message || 'Data stored successfully!',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                }).then(() => {
+                    document.getElementById('allocateForm').reset();
+                    window.open(response.data.print_url, '_blank');
+                    $('#allocateTable').DataTable().ajax.reload();
+
+                    resetProgressBar();
+                });
+            }else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: response.data.message || 'Something went wrong!',
+                });
+            }
+        });
     }
 </script>
 @endsection

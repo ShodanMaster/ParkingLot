@@ -4,7 +4,7 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Master\LocationController;
 use App\Http\Controllers\Master\VehicleController;
-use App\Http\Controllers\Transaction\AllocateController;
+use App\Http\Controllers\Transaction\ScanInController;
 use App\Http\Controllers\Transaction\ScanOutController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,20 +42,18 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::prefix('transaction')->name('transaction.')->group(function () {
 
-        Route::prefix('allocate')->name('allocate.')->group(function(){
-            Route::get('/', [AllocateController::class, 'index'])->name('index');
-            Route::get('get-allocates', [AllocateController::class, 'getAllocates'])->name('getallocates');
-            Route::post('/store', [AllocateController::class, 'store'])->name('store');
+        Route::get('/scan-in', [ScanInController::class, 'index'])->name('scanin');
+        Route::get('get-allocates', [ScanInController::class, 'getAllocates'])->name('getallocates');
+        Route::post('/scaning-in', [ScanInController::class, 'store'])->name('scanningin');
 
-            Route::post('fetch-locations', [LocationController::class, 'fetchLocations'])->name('fetchlocations');
-            Route::post('get-slots', [AllocateController::class, 'getSlots'])->name('getslots');
-            Route::get('/print/{allocate}', [AllocateController::class, 'getPrint'])->name('getprint');
-        });
+        Route::post('fetch-locations', [LocationController::class, 'fetchLocations'])->name('fetchlocations');
+        Route::post('get-slots', [ScanInController::class, 'getSlots'])->name('getslots');
+        Route::post('allocated-vehicle', [ScanInController::class, 'allocatedVehicle'])->name('allocatedvehcile');
+        Route::get('/print/{allocate}', [ScanInController::class, 'getPrint'])->name('getprint');
 
-        Route::prefix('scan')->name('scan.')->group(function(){
-            Route::get('/', [ScanOutController::class, 'index'])->name('index');
-            Route::post('scan-out', [ScanOutController::class, 'scanOut'])->name('scanout');
-        });
+        Route::get('/scan-out', [ScanOutController::class, 'index'])->name('scanout');
+        Route::post('scanning-out', [ScanOutController::class, 'scanOut'])->name('scanningout');
+
     });
 
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');

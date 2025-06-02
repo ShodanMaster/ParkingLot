@@ -30,9 +30,12 @@
                         Transaction
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{route('transaction.allocate.index')}}">Allocate</a></li>
-                        <li><a class="dropdown-item" href="{{route('transaction.scan.index')}}">Scan Out</a></li>
+                        <li><a class="dropdown-item" href="{{route('transaction.scanin')}}">Scan In</a></li>
+                        <li><a class="dropdown-item" href="{{route('transaction.scanout')}}">Scan Out</a></li>
                     </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Report</a>
                 </li>
             </ul>
                 <a href="{{route('logout')}}"><button class="btn btn-outline-danger" type="submit">Logout</button></a>
