@@ -1,6 +1,5 @@
-@extends('app.layout')
-
-@section('content')
+@extends('app.master')
+@section('mastercontent')
     <div class="card">
         <div class="card-header bg-primary text-center text-white fs-4">
             Scan Out

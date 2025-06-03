@@ -1,5 +1,5 @@
-@extends('app.layout')
-@section('content')
+@extends('app.master')
+@section('mastercontent')
     <div class="card">
         <div class="card-header bg-primary text-white fs-4">
             Report Form
@@ -94,7 +94,7 @@
         </form>
     </div>
 @endsection
-@section('script')
+@push('custom-scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const qrInput = document.getElementById('qrcode');
@@ -124,4 +124,4 @@
             });
         });
     </script>
-@endsection
+@endpush

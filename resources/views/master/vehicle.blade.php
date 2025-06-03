@@ -1,5 +1,5 @@
-@extends('app.layout')
-@section('content')
+@extends('app.master')
+@section('mastercontent')
 <!-- Add Vehicle Modal -->
 <div class="modal fade" id="addVehicleModal" tabindex="-1" aria-labelledby="addVehicleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -70,7 +70,7 @@
     </table>
 
 @endsection
-@section('script')
+@push('custom-scripts')
 <script>
 
     document.getElementById('addVehicleModal').addEventListener('hidden.bs.modal', function () {
@@ -236,4 +236,4 @@
         });
     });
 </script>
-@endsection
+@endpush

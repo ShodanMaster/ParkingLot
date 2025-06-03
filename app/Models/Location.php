@@ -12,4 +12,8 @@ class Location extends Model
     public function vehicle(){
         return $this->belongsTo(Vehicle::class);
     }
+
+    public function allocates(){
+        return $this->hasMany(Allocate::class);
+    }
 }

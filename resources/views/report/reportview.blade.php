@@ -1,5 +1,5 @@
-@extends('app.layout')
-@section('content')
+@extends('app.master')
+@section('mastercontent')
     <div class="d-flex justify-content-end mb-1">
         <button type="button" class="btn btn-sm btn-danger" id="pdf">PDF</button>
         <button type="button" class="btn btn-sm btn-success mx-2" id="excel">Excel</button>
@@ -28,7 +28,7 @@
         </form>
     </div>
 @endsection
-@section('script')
+@push('custom-scripts')
     <script>
         $(document).ready(function () {
             const filterParams = {
@@ -109,5 +109,4 @@
             });
         });
     </script>
-
-@endsection
+@endpush

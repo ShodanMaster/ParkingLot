@@ -1,5 +1,5 @@
-@extends('app.layout')
-@section('content')
+@extends('app.master')
+@section('mastercontent')
     <h1>Scan In</h1>
     <div class="card shadow-lg">
         <div class="card-header bg-primary text-center text-white fs-4">
@@ -74,7 +74,7 @@
         </table>
     </div>
 @endsection
-@section('script')
+@push('custom-scripts')
 <script>
     $(document).ready(function () {
 
@@ -332,4 +332,4 @@
         });
     }
 </script>
-@endsection
+@endpush

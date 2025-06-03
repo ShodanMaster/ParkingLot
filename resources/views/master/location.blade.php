@@ -1,5 +1,5 @@
-@extends('app.layout')
-@section('content')
+@extends('app.master')
+@section('mastercontent')
 <!-- Add Location Modal -->
 <div class="modal fade" id="addLocationModal" tabindex="-1" aria-labelledby="addLocationModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -97,7 +97,7 @@
     </table>
 
 @endsection
-@section('script')
+@push('custom-scripts')
 <script>
 
     document.getElementById('addLocationModal').addEventListener('hidden.bs.modal', function () {
@@ -282,4 +282,4 @@
         });
     });
 </script>
-@endsection
+@endpush

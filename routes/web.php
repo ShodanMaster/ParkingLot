@@ -13,9 +13,11 @@ Route::get('/login', [LoginController::class, 'index'])->name('login');
 
 Route::post('/login-in', [LoginController::class, 'logingIn'])->name('logingin');
 
+Route::get('/', [IndexController::class, 'index']);
+
 Route::group(['middleware' => 'auth'], function () {
 
-    Route::get('/dashboard', [IndexController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [IndexController::class, 'dashboard'])->name('dashboard');
 
     Route::group(['middleware' => 'admin'], function () {
 

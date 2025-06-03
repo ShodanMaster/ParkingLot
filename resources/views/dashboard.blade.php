@@ -1,6 +1,7 @@
-@extends('app.layout')
-@section('content')
-    <div class="container mt-5">
+@extends('app.master')
+@section('mastercontent')
+    <div class="container">
+        <h1>Dashboard</h1>
         <div class="row">
             @foreach ($locations as $location)
                 <div class="col-md-3 mb-4">
@@ -23,12 +24,10 @@
         </div>
     </div>
 @endsection
-@section('script')
+@push('custom-scripts')
     <script>
-        // Reusable function to create the pie chart
         function createPieChart(canvasId, allocated, available) {
             var ctx = document.getElementById(canvasId).getContext('2d');
-
             new Chart(ctx, {
                 type: 'pie',
                 data: {
@@ -59,11 +58,15 @@
             });
         }
 
-        // Loop through the locations and create the pie chart for each
         @foreach ($locations as $location)
             document.addEventListener('DOMContentLoaded', function() {
-                createPieChart('locationChart{{$location->id}}', {{ count($location->allocates->filter(function($allocate) { return is_null($allocate->out_time); })) }} , {{$location->slot - count($location->allocates)}});
+                createPieChart(
+                    'locationChart{{$location->id}}',
+                    {{ count($location->allocates->filter(fn($a) => is_null($a->out_time))) }},
+                    {{ $location->slot - count($location->allocates) }}
+                );
             });
         @endforeach
     </script>
-@endsection
+@endpush
+
