@@ -78,31 +78,45 @@
     });
 
     function deleteVehicle(id) {
-        axios.delete(`{{ route('master.vehicle.delete') }}`, {
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            data: { id: id }
-        })
-        .then(response => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Vehicle Deleted',
-                text: 'Vehicle has been deleted successfully!',
-                timer: 2000,
-                showConfirmButton: false
-            });
-            $('#vehicleTable').DataTable().ajax.reload();
-        })
-        .catch(error => {
-            console.error('Error deleting vehicle:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Something Went Wrong',
-                text: error.message || 'Error deleting vehicle',
-                timer: 2000,
-                showConfirmButton: false
-            });
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will permanently delete the vehicle.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete(`{{ route('master.vehicle.delete') }}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    data: { id: id }
+                })
+                .then(response => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Deleted!',
+                        text: 'Vehicle has been deleted successfully!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    $('#vehicleTable').DataTable().ajax.reload();
+                })
+                .catch(error => {
+                    console.error('Error deleting vehicle:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Something Went Wrong',
+                        text: error.response?.data?.message || 'Error deleting vehicle',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                });
+            }
         });
     }
 

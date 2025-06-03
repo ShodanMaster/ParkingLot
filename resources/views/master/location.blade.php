@@ -105,33 +105,48 @@
     });
 
     function deleteLocation(id) {
-        axios.delete(`{{ route('master.location.delete') }}`, {
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            data: { id: id }
-        })
-        .then(response => {
-            Swal.fire({
-                icon: 'success',
-                title: 'Location Deleted',
-                text: 'Location has been deleted successfully!',
-                timer: 2000,
-                showConfirmButton: false
-            });
-            $('#locationTable').DataTable().ajax.reload();
-        })
-        .catch(error => {
-            console.error('Error deleting location:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Something Went Wrong',
-                text: error.message || 'Error deleting location',
-                timer: 2000,
-                showConfirmButton: false
-            });
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This will permanently delete the location.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                axios.delete(`{{ route('master.location.delete') }}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    data: { id: id }
+                })
+                .then(response => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Location Deleted',
+                        text: 'Location has been deleted successfully!',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    $('#locationTable').DataTable().ajax.reload();
+                })
+                .catch(error => {
+                    console.error('Error deleting location:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Something Went Wrong',
+                        text: error.response?.data?.message || 'Error deleting location',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                });
+            }
         });
     }
+
 
     function editLocation(id, slot, vehicle, name) {
 
