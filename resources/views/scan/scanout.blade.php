@@ -19,54 +19,54 @@
             const codeInput = document.getElementById("code");
 
             codeInput.addEventListener("input", function () {
-                const code = codeInput.value;
-                console.log("Code input:", code);
+                const code = codeInput.value.trim();
 
-                axios.post('{{ route('scan.scanningout') }}', {
-                    code: code
-                }, {
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    }
-                })
-                .then(response => {
-                    console.log("Response:", response.data);
-                    if(response.data.status ===200 ){
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: response.data.message || 'Scanned Out',
-                            showConfirmButton: false,
-                            timer: 1500,
-                            timerProgressBar: true
-                        }).then(()=> {
-                            codeInput.value = '';
+                if (code !== '') {
+                    axios.post('{{ route('scan.scanningout') }}', {
+                        code: code
+                    }, {
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        }
+                    })
+                    .then(response => {
 
-                        });
-                    }else{
                         codeInput.value = '';
+
+                        if (response.data.status === 200) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.data.message || 'Scanned Out',
+                                showConfirmButton: false,
+                                timer: 1500,
+                                timerProgressBar: true
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.data.message || 'Something went wrong!',
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        codeInput.value = '';
+
+                        let message = 'An unexpected error occurred.';
+                        if (error.response && error.response.data && error.response.data.message) {
+                            message = error.response.data.message;
+                        }
 
                         Swal.fire({
                             icon: 'error',
-                            title: 'Error',
-                            text: response.data.message || 'Something went wrong!',
+                            title: 'Server Error',
+                            text: message,
                         });
-                    }
-                })
-                .catch(error => {
-                    let message = 'An unexpected error occurred.';
-                    if (error.response && error.response.data && error.response.data.message) {
-                        message = error.response.data.message;
-                    }
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Server Error',
-                        text: message,
                     });
-                });
+                }
             });
         });
+        </script>
 
-    </script>
 @endsection

@@ -12,18 +12,24 @@ class LoginController extends Controller
     }
 
     public function logingIn(Request $request){
-        
+
         $credentials = $request->only('username', 'password');
         $remember = $request->has('remember');
 
         if (Auth::attempt($credentials, $remember)) {
-            return redirect()->route('dashboard');
+            return response()->json([
+                'status' => 200,
+                'message' => 'Login Successful',
+                'route' => route('dashboard')
+            ]);
         }
 
-        return redirect()->back()->withErrors([
-            'username' => 'The provided credentials do not match our records.',
-        ]);
+        return response()->json([
+            'status' => 401,
+            'message' => 'Invalid credentials. Please try again.'
+        ], 401);
     }
+
     public function logout(Request $request)
     {
         Auth::logout();

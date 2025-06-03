@@ -36,56 +36,63 @@
     <script src="{{ asset('asset/bootstrap/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('asset/js/sweetalert/sweetalert.min.js') }}"></script>
     <script>
-        document.getElementById('loginForm').addEventListener('submit', function(e){
-            e.preventDefault();
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const rememberMe = document.getElementById('rememberMe').checked;
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const rememberMe = document.getElementById('rememberMe').checked;
 
-            axios.post('{{route('logingin')}}', {
-                username: username,
-                password: password,
-                rememberMe: rememberMe
-            },{
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                }
-            }).then(response => {
-                if(response.status === 200){
-                    Swal.fire({
-                        title: 'Succss',
-                        text: 'Login successful',
-                        icon: 'success',
-                        showConfirmButton: false,
-                        timer: 1500,
-                        timerProgressBar: true
-                    }).then(() => {
-                        window.location.href = '/dashboard';
-                    });
-                }else{
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'Login failed',
-                        icon: 'error',
-                        showConfirmButton: false,
-                        timer: 1500,
-                        timerProgressBar: true
-                    });
-                }
-
-            }).catch(error => {
+        axios.post('{{ route('logingin') }}', {
+            username: username,
+            password: password,
+            remember: rememberMe
+        }, {
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => {
+            if (response.data.status === 200) {
+                Swal.fire({
+                    title: 'Success',
+                    text: response.data.message || 'Login successful',
+                    icon: 'success',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true
+                }).then(() => {
+                    
+                    window.location.href = response.data.route || '/dashboard';
+                });
+            } else {
                 Swal.fire({
                     title: 'Error',
-                    text: 'An error occurred during login',
+                    text: response.data.message || 'Login failed',
                     icon: 'error',
                     showConfirmButton: false,
                     timer: 1500,
                     timerProgressBar: true
                 });
-                console.error('Login error:', error);
+            }
+        })
+        .catch(error => {
+            let msg = 'An error occurred during login';
+            if (error.response && error.response.data && error.response.data.message) {
+                msg = error.response.data.message;
+            }
+            Swal.fire({
+                title: 'Error',
+                text: msg,
+                icon: 'error',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true
             });
+            console.error('Login error:', error);
         });
+    });
     </script>
+
 </body>
 </html>
