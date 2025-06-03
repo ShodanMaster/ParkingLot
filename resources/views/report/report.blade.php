@@ -96,6 +96,32 @@
 @endsection
 @section('script')
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const qrInput = document.getElementById('qrcode');
 
+            const fieldsToToggle = [
+                'from_date',
+                'to_date',
+                'vehicle_number',
+                'location',
+                'status',
+                'inTimeFrom',
+                'inTimeTo',
+                'outTimeFrom',
+                'outTimeTo'
+            ];
+
+            qrInput.addEventListener('input', function () {
+                const isQRFilled = qrInput.value.trim() !== '';
+
+                fieldsToToggle.forEach(id => {
+                    const field = document.getElementById(id);
+                    if (field) {
+                        field.value = '';
+                        field.disabled = isQRFilled;
+                    }
+                });
+            });
+        });
     </script>
 @endsection
