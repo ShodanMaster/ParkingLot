@@ -20,7 +20,6 @@ class ReportController extends Controller
     }
 
     public function store(Request $request){
-        // dd($request->all());
         try{
             $fromDate = $request->from_date;
             $toDate = $request->to_date;
@@ -121,6 +120,7 @@ class ReportController extends Controller
     }
 
     protected function reportPdf($data){
+
         $pdf = Pdf::loadView('report.reportpdf', ['data' => $data]);
         return $pdf->download('reportpdf.pdf');
     }

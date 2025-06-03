@@ -31,8 +31,21 @@
 @section('script')
     <script>
         $(document).ready(function () {
+            const filterParams = {
+                from_date: '{{$fromDate}}',
+                to_date: '{{$toDate}}',
+                qrcode: '{{$qrcode}}',
+                vehicle_number: '{{$vehicleNumber}}',
+                location: '{{$location}}',
+                status: '{{$status}}',
+                inTimeFrom: '{{$inTimeFrom}}',
+                inTimeTo: '{{$inTimeTo}}',
+                outTimeFrom: '{{$outTimeFrom}}',
+                outTimeTo: '{{$outTimeTo}}',
+                _token: '{{ csrf_token() }}'
+            };
 
-            var table = $('#reportTable').DataTable({
+            const table = $('#reportTable').DataTable({
                 language: { search: "", searchPlaceholder: "Search" },
                 pageLength: 10,
                 lengthMenu: [[5, 10, 20, 50, 100], [5, 10, 20, 50, 100]],
@@ -50,73 +63,51 @@
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    data: function(d) {
-                        d.fromDate = '{{ $fromDate }}';
-                        d.toDate = '{{ $toDate }}';
-                        d.qrcode = '{{ $qrcode }}';
-                        d.vehicleNumber = '{{ $vehicleNumber }}';
-                        d.location = '{{ $location }}';
-                        d.status = '{{ $status }}';
-                        d.inTimeFrom = '{{ $inTimeFrom }}';
-                        d.inTimeTo = '{{ $inTimeTo }}';
-                        d.outTimeFrom = '{{ $outTimeFrom }}';
-                        d.outTimeTo = '{{ $outTimeTo }}';
-                    },
+                    data: function (d) {
+                        return Object.assign(d, filterParams);
+                    }
                 },
-
                 columns: [
                     { data: 'DT_RowIndex', name: 'DT_RowIndex' },
                     { data: 'vehicle_number', name: 'vehicle_number' },
                     { data: 'qrcode', name: 'qrcode' },
                     { data: 'location', name: 'location' },
                     { data: 'in_time', name: 'in_time' },
-                    { data: 'out_time', name: 'out_time'},
+                    { data: 'out_time', name: 'out_time' },
                     { data: 'status', name: 'status' },
                 ]
             });
 
-        });
+            function submitReportForm(actionValue) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("report.reportview") }}';
 
-        document.getElementById('pdf').addEventListener('click', function(e){
-            e.preventDefault();
+                const allParams = { ...filterParams, action: actionValue };
 
-            const fromDate = @json($fromDate);
-            const toDate = @json($toDate);
-            const qrcode = @json($qrcode);
-            const vehicleNumber = @json($vehicleNumber);
-            const location = @json($location);
-            const status = @json($status);
-            const inTimeFrom = @json($inTimeFrom);
-            const inTimeTo = @json($inTimeTo);
-            const outTimeFrom = @json($outTimeFrom);
-            const outTimeTo = @json($outTimeTo);
-
-            axios.post('{{ route('report.reportview') }}', {
-                from_date : fromDate,
-                to_date : toDate,
-                qrcode : qrcode,
-                vehicle_number : vehicleNumber,
-                location : location,
-                status : status,
-                inTimeFrom : inTimeFrom,
-                inTimeTo : inTimeTo,
-                outTimeFrom : outTimeFrom,
-                outTimeTo : outTimeTo,
-                action : 2,
-            }, {
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                for (const key in allParams) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = key;
+                    input.value = allParams[key];
+                    form.appendChild(input);
                 }
-            })
-            .then(response => {
-                console.log(response.data);
-                // handle PDF download or redirection here
-            })
-            .catch(error => {
-                console.error("Error generating PDF:", error);
+
+                document.body.appendChild(form);
+                form.submit();
+                form.remove();
+            }
+
+            document.getElementById('pdf').addEventListener('click', function (e) {
+                e.preventDefault();
+                submitReportForm('3');
             });
 
+            document.getElementById('excel').addEventListener('click', function (e) {
+                e.preventDefault();
+                submitReportForm('2');
+            });
         });
-
     </script>
+
 @endsection
