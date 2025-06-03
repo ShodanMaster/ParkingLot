@@ -63,7 +63,7 @@ Route::group(['middleware' => 'auth'], function () {
 
         Route::prefix('report')->name('report.')->group(function () {
 
-            Route::get('report', [ReportController::class, 'index'])->name('report');
+            Route::get('', [ReportController::class, 'index'])->name('report');
             Route::post('report-view', [ReportController::class, 'store'])->name('reportview');
             Route::post('get-report', [ReportController::class, 'getReports'])->name('getreports');
         });

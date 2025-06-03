@@ -8,13 +8,13 @@
             @csrf
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="from_date" class="form-label">From Date</label>
                             <input type="date" class="form-control" name="from_date" id="from_date">
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="to_date" class="form-label">To Date</label>
                             <input type="date" class="form-control" name="to_date" id="to_date">
@@ -22,13 +22,13 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="vehicle_number" class="form-label">Vehicle Number</label>
                             <input type="text" class="form-control" name="vehicle_number" id="vehicle_number">
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="qrcode" class="form-label">QR Code</label>
                             <input type="text" class="form-control" name="qrcode" id="qrcode">
@@ -36,7 +36,7 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="form-group">
                             <label for="locaiton" class="form-label">Location</label>
                             <select class="form-control" name="location" id="location">
@@ -50,7 +50,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <label for="status" class="form-label">Status</label>
                         <select name="status" id="status" class="form-control">
                             <option value="" disabled selected>Select Status</option>
@@ -60,25 +60,25 @@
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
                                 <label for="inTimeFrom" class="form-label">In-Time From</label>
                                 <input type="time" class="form-control" name="inTimeFrom" id="inTimeFrom">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
                                 <label for="inTimeTo" class="form-label">In-Time To</label>
                                 <input type="time" class="form-control" name="inTimeTo" id="inTimeTo">
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6 mb-3">
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
                                 <label for="outTimeFrom" class="form-label">Out-Time From</label>
                                 <input type="time" class="form-control" name="outTimeFrom" id="outTimeFrom">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 mb-3">
                                 <label for="outTimeTo" class="form-label">Out-Time To</label>
                                 <input type="time" class="form-control" name="outTimeTo" id="outTimeTo">
                             </div>
