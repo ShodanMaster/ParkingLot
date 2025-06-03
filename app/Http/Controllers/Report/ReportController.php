@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\Report;
 
+use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Allocate;
 use App\Models\Location;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Composer;
+use Maatwebsite\Excel\Facades\Excel;
 use Yajra\DataTables\DataTables;
 
 class ReportController extends Controller
@@ -32,11 +33,15 @@ class ReportController extends Controller
             $outTimeFrom = $request->outTimeFrom;
             $outTimeTo = $request->outTimeTo;
 
+            $data = $this->allocateData($request);
+
             if($request->action == 1){
                 return view('report.reportview', compact('fromDate', 'toDate', 'qrcode', 'vehicleNumber', 'inTimeFrom', 'location', 'status','inTimeTo','outTimeFrom', 'outTimeTo'));
             }
+            elseif($request->action == 2){
+                return Excel::download(new ReportExport($data), 'parking_report.xlsx');
+            }
             elseif($request->action == 3){
-                $data = $this->allocateData($request);
                 return $this->reportPdf($data);
             }
         } catch(Exception $e){
