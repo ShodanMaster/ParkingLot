@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Report;
 use App\Http\Controllers\Controller;
 use App\Models\Allocate;
 use App\Models\Location;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Composer;
@@ -30,9 +31,13 @@ class ReportController extends Controller
             $inTimeTo = $request->inTimeTo;
             $outTimeFrom = $request->outTimeFrom;
             $outTimeTo = $request->outTimeTo;
-            
+
             if($request->action == 1){
                 return view('report.reportview', compact('fromDate', 'toDate', 'qrcode', 'vehicleNumber', 'inTimeFrom', 'location', 'status','inTimeTo','outTimeFrom', 'outTimeTo'));
+            }
+            elseif($request->action == 3){
+                $data = $this->allocateData($request);
+                return $this->reportPdf($data);
             }
         } catch(Exception $e){
             return response()->json([
@@ -110,4 +115,8 @@ class ReportController extends Controller
 
     }
 
+    protected function reportPdf($data){
+        $pdf = Pdf::loadView('report.reportpdf', ['data' => $data]);
+        return $pdf->download('reportpdf.pdf');
+    }
 }
