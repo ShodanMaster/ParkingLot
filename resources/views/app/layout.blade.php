@@ -16,15 +16,17 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        Master
-                    </a>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{route('master.vehicle.index')}}">Vehicle Management</a></li>
-                        <li><a class="dropdown-item" href="{{route('master.location.index')}}">Location Management</a></li>
-                    </ul>
-                </li>
+                @if (auth()->user()->type == 'admin')
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Master
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{route('master.vehicle.index')}}">Vehicle Management</a></li>
+                            <li><a class="dropdown-item" href="{{route('master.location.index')}}">Location Management</a></li>
+                        </ul>
+                    </li>
+                @endif
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Scan
