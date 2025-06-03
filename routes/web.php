@@ -9,11 +9,11 @@ use App\Http\Controllers\Scan\ScanInController;
 use App\Http\Controllers\Scan\ScanOutController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/login', [LoginController::class, 'index'])->name('login');
-
-Route::post('/login-in', [LoginController::class, 'logingIn'])->name('logingin');
-
 Route::get('/', [IndexController::class, 'index']);
+Route::post('locations', [IndexController::class, 'locations'])->name('locations');
+
+Route::get('/login', [LoginController::class, 'index'])->name('login');
+Route::post('/login-in', [LoginController::class, 'logingIn'])->name('logingin');
 
 Route::group(['middleware' => 'auth'], function () {
 

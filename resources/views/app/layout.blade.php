@@ -11,6 +11,7 @@
     @yield('content')
 
     <script src="{{ asset('asset/js/chart/chart.js') }}"></script>
+    <script src="{{ asset('asset/js/axios/axios.min.js') }}"></script>
     @stack('plugin-scripts')
     @stack('custom-scripts')
 </body>
