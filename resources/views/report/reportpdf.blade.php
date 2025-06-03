@@ -79,7 +79,7 @@
             @foreach ($data as $d)
                 <tr>
                     <td>{{ $d['DT_RowIndex'] }}</td>
-                    <td>{!! $d['qrcode'] !!}</td> {{-- allow HTML if qrcode is an image tag --}}
+                    <td>{!! $d['qrcode'] !!}</td>
                     <td>{{ $d['vehicle_number'] }}</td>
                     <td>{{ $d['location'] }}</td>
                     <td>{{ $d['in_time'] }}</td>
