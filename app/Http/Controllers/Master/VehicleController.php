@@ -38,7 +38,6 @@ class VehicleController extends Controller
     }
 
     public function store(Request $request){
-        // dd($request->all());
 
         $request->validate([
             'vehicleName' => 'required|string|max:255|unique:vehicles,name',
@@ -96,7 +95,7 @@ class VehicleController extends Controller
     }
 
     public function destroy(Request $request){
-        // dd($request->all());
+        
         try{
             $vehicle = Vehicle::findOrFail($request->id);
             $vehicle->delete();

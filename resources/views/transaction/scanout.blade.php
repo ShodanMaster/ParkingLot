@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="card">
-        <div class="card-header bg-primary text-white fs-4">
+        <div class="card-header bg-primary text-center text-white fs-4">
             Scan Out
         </div>
         <form>

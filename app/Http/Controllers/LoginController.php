@@ -12,7 +12,7 @@ class LoginController extends Controller
     }
 
     public function logingIn(Request $request){
-        // dd($request->all());
+        
         $credentials = $request->only('username', 'password');
         $remember = $request->has('remember');
 

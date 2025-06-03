@@ -2,7 +2,7 @@
 @section('content')
     <div class="card">
         <div class="card-header bg-primary text-white fs-4">
-            Report
+            Report Form
         </div>
         <form action="{{route('report.reportview')}}" method="POST">
             @csrf

@@ -75,7 +75,7 @@
 </div>
 
 <div class="d-flex justify-content-between">
-    <h1>Location Management</h1>
+    <h1>Location Master</h1>
 
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLocationModal">
         Add Location
