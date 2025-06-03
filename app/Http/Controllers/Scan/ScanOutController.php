@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Transaction;
+namespace App\Http\Controllers\Scan;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ScanOutRequest;
@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 class ScanOutController extends Controller
 {
     public function index(){
-        return view('transaction.scanout');
+        return view('scan.scanout');
     }
 
     public function scanOut(ScanOutRequest $request){

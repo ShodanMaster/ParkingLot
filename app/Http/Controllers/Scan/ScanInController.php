@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Transaction;
+namespace App\Http\Controllers\Scan;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ScanInRequest;
@@ -19,7 +19,7 @@ class ScanInController extends Controller
 {
     public function index(){
         $vehicles = Vehicle::orderBy('name')->get();
-        return view('transaction.scanIn', compact( 'vehicles'));
+        return view('scan.scanIn', compact( 'vehicles'));
     }
 
     public function getAllocates(Request $request){
@@ -32,7 +32,7 @@ class ScanInController extends Controller
                     return $allocate->location->name;
                 })
                 ->addColumn('action', function ($allocate) {
-                    $printRoute = route('transaction.getprint', $allocate->id);
+                    $printRoute = route('scan.getprint', $allocate->id);
                     return '<a href="' . $printRoute . '" target="_blank"><button class="btn btn-info btn-sm">Get Print</button></a>';
                 })
                 ->editColumn('status', function ($allocate) {
@@ -95,7 +95,7 @@ class ScanInController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Allocated successfully',
-                'print_url' => route('transaction.getprint', ['allocate' => $allocate]),
+                'print_url' => route('scan.getprint', ['allocate' => $allocate]),
             ]);
 
         } catch (Exception $e) {
@@ -178,7 +178,7 @@ class ScanInController extends Controller
             return response()->json([
                 'status' => 200,
                 'message' => 'Allocated successfully',
-                'print_url' => route('transaction.getprint', ['allocate' => $allocate]),
+                'print_url' => route('scan.getprint', ['allocate' => $allocate]),
             ]);
 
         } catch (Exception $e) {

@@ -30,8 +30,8 @@
                         Scan
                     </a>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{{route('transaction.scanin')}}">Scan In</a></li>
-                        <li><a class="dropdown-item" href="{{route('transaction.scanout')}}">Scan Out</a></li>
+                        <li><a class="dropdown-item" href="{{route('scan.scanin')}}">Scan In</a></li>
+                        <li><a class="dropdown-item" href="{{route('scan.scanout')}}">Scan Out</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">

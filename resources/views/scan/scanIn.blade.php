@@ -81,7 +81,7 @@
         const table = $('#allocateTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: '{{ route('transaction.getallocates') }}',
+            ajax: '{{ route('scan.getallocates') }}',
             pageLength: 5,
             columns: [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex' },
@@ -99,7 +99,7 @@
     document.getElementById('vehicle').addEventListener('change', function(e) {
         const vehicleid = document.getElementById('vehicle').value;
         resetProgressBar();
-        axios.post('{{ route('transaction.fetchlocations') }}', {
+        axios.post('{{ route('scan.fetchlocations') }}', {
             vehicleId: vehicleid
         }, {
             headers: {
@@ -138,7 +138,7 @@
     document.getElementById('location').addEventListener('change', function(e) {
         const locationId = document.getElementById('location').value;
 
-        axios.post('{{ route('transaction.getslots') }}', {
+        axios.post('{{ route('scan.getslots') }}', {
             locationId: locationId
         }, {
             headers: {
@@ -193,7 +193,7 @@
         loadingText.style.display = 'inline-block';
         submitText.style.display = 'none';
 
-        axios.post('{{route('transaction.scanningin')}}', {
+        axios.post('{{route('scan.scanningin')}}', {
             vehicleNumber: vehicleNumber,
             vehicleId: vehicleId,
             locationId: locationId,
@@ -296,7 +296,7 @@
     }
 
     function allocatedVehicle(vehicleNumber, vehicleId, locationId){
-        axios.post('{{route('transaction.allocatedvehcile')}}', {
+        axios.post('{{route('scan.allocatedvehcile')}}', {
             vehicleNumber: vehicleNumber,
             vehicleId: vehicleId,
             locationId: locationId,

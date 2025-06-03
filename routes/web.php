@@ -5,8 +5,8 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\Master\LocationController;
 use App\Http\Controllers\Master\VehicleController;
 use App\Http\Controllers\Report\ReportController;
-use App\Http\Controllers\Transaction\ScanInController;
-use App\Http\Controllers\Transaction\ScanOutController;
+use App\Http\Controllers\Scan\ScanInController;
+use App\Http\Controllers\Scan\ScanOutController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', [LoginController::class, 'index'])->name('login');
@@ -41,27 +41,31 @@ Route::group(['middleware' => 'auth'], function () {
 
     });
 
-    Route::prefix('transaction')->name('transaction.')->group(function () {
+    Route::group(['middleware' => 'admin_worker'], function () {
 
-        Route::get('/scan-in', [ScanInController::class, 'index'])->name('scanin');
-        Route::get('get-allocates', [ScanInController::class, 'getAllocates'])->name('getallocates');
-        Route::post('/scaning-in', [ScanInController::class, 'store'])->name('scanningin');
+        Route::prefix('scan')->name('scan.')->group(function () {
 
-        Route::post('fetch-locations', [LocationController::class, 'fetchLocations'])->name('fetchlocations');
-        Route::post('get-slots', [ScanInController::class, 'getSlots'])->name('getslots');
-        Route::post('allocated-vehicle', [ScanInController::class, 'allocatedVehicle'])->name('allocatedvehcile');
-        Route::get('/print/{allocate}', [ScanInController::class, 'getPrint'])->name('getprint');
+            Route::get('/scan-in', [ScanInController::class, 'index'])->name('scanin');
+            Route::get('get-allocates', [ScanInController::class, 'getAllocates'])->name('getallocates');
+            Route::post('/scaning-in', [ScanInController::class, 'store'])->name('scanningin');
 
-        Route::get('/scan-out', [ScanOutController::class, 'index'])->name('scanout');
-        Route::post('scanning-out', [ScanOutController::class, 'scanOut'])->name('scanningout');
+            Route::post('fetch-locations', [LocationController::class, 'fetchLocations'])->name('fetchlocations');
+            Route::post('get-slots', [ScanInController::class, 'getSlots'])->name('getslots');
+            Route::post('allocated-vehicle', [ScanInController::class, 'allocatedVehicle'])->name('allocatedvehcile');
+            Route::get('/print/{allocate}', [ScanInController::class, 'getPrint'])->name('getprint');
 
-    });
+            Route::get('/scan-out', [ScanOutController::class, 'index'])->name('scanout');
+            Route::post('scanning-out', [ScanOutController::class, 'scanOut'])->name('scanningout');
 
-    Route::prefix('report')->name('report.')->group(function () {
+        });
 
-        Route::get('report', [ReportController::class, 'index'])->name('report');
-        Route::post('report-view', [ReportController::class, 'store'])->name('reportview');
-        Route::post('get-report', [ReportController::class, 'getReports'])->name('getreports');
+        Route::prefix('report')->name('report.')->group(function () {
+
+            Route::get('report', [ReportController::class, 'index'])->name('report');
+            Route::post('report-view', [ReportController::class, 'store'])->name('reportview');
+            Route::post('get-report', [ReportController::class, 'getReports'])->name('getreports');
+        });
+
     });
 
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
