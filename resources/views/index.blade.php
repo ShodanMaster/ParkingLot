@@ -23,7 +23,7 @@
         </div>
     </div>
 @endsection
-@section('script')
+@push('custom-scripts')
     <script>
         // Reusable function to create the pie chart
         function createPieChart(canvasId, allocated, available) {
@@ -66,4 +66,4 @@
             });
         @endforeach
     </script>
-@endsection
+@endpush
