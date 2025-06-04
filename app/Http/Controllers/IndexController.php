@@ -2,49 +2,36 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Location;
-use App\Models\Vehicle;
+use App\Services\DashboardService;
 use Exception;
 use Illuminate\Http\Request;
 
 class IndexController extends Controller
 {
-    public function index(){
-        $vehicles = Vehicle::all();
+    protected DashboardService $dashboardService;
+
+    public function __construct(DashboardService $dashboardService)
+    {
+        $this->dashboardService = $dashboardService;
+    }
+
+    public function index()
+    {
+        $vehicles = $this->dashboardService->getAllVehicles();
         return view('index', compact('vehicles'));
     }
+
     public function dashboard()
     {
-        $vehicles = Vehicle::all();
+        $vehicles = $this->dashboardService->getAllVehicles();
         return view('dashboard', compact('vehicles'));
     }
 
-    public function locations(Request $request){
-
+    public function locations(Request $request)
+    {
         try {
             $vehicleId = $request->vehicleId;
-
-            $query = Location::with('allocates');
-
-            if ($vehicleId) {
-                $query->where('vehicle_id', $vehicleId);
-            }
-
-            $locations = $query->get();
-
-            $data = $locations->map(function ($location) {
-                $allocated = $location->allocates->filter(function ($allocate) {
-                    return is_null($allocate->out_time);
-                })->count();
-
-                return [
-                    'id' => $location->id,
-                    'name' => $location->name,
-                    'allocated' => $allocated,
-                    'available' => $location->slot - $allocated,
-                    'totalSlot' => $location->slot
-                ];
-            });
+            $data = $this->dashboardService->getLocationSummaries($vehicleId);
 
             return response()->json([
                 'status' => 200,
@@ -60,5 +47,4 @@ class IndexController extends Controller
             ], 500);
         }
     }
-
 }

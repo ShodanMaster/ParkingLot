@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Master;
 use App\Http\Controllers\Controller;
 use App\Models\Vehicle;
 use App\Services\LocationService;
+use App\Services\VehicleService;
 use Exception;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -12,15 +13,17 @@ use Yajra\DataTables\DataTables;
 class LocationController extends Controller
 {
     protected LocationService $locationService;
+    protected VehicleService $vehicleService;
 
-    public function __construct(LocationService $locationService)
+    public function __construct(LocationService $locationService, VehicleService $vehicleService)
     {
         $this->locationService = $locationService;
+        $this->vehicleService = $vehicleService;
     }
 
     public function index()
     {
-        $vehicles = Vehicle::all();
+        $vehicles = $this->vehicleService->getAllVehicles();
         return view('master.location', compact('vehicles'));
     }
 
