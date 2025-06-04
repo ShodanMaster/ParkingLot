@@ -24,7 +24,7 @@ class ScanInController extends Controller
 
     public function index()
     {
-        $vehicles = $this->vehicleService->getAllVehiclesOrderedByName();
+        $vehicles = $this->vehicleService->getAllVehicles();
         return view('scan.scanIn', compact('vehicles'));
     }
 
