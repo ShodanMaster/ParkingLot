@@ -8,6 +8,7 @@ use App\Models\Allocate;
 use App\Models\Location;
 use App\Models\QrCode as ModelsQrCode;
 use App\Models\Vehicle;
+use App\Services\QrCodeService;
 use App\Services\ScanInService;
 use Exception;
 use Illuminate\Http\Request;
@@ -18,7 +19,14 @@ use Yajra\DataTables\DataTables;
 
 class ScanInController extends Controller
 {
-    public function __construct(protected ScanInService $scanInService) {}
+    protected ScanInService $scanInService;
+    protected QrCodeService $qrCodeService;
+
+    public function __construct(ScanInService $scanInService, QrCodeService $qrCodeService)
+    {
+        $this->scanInService = $scanInService;
+        $this->qrCodeService = $qrCodeService;
+    }
 
     public function index(){
         $vehicles = Vehicle::orderBy('name')->get();
@@ -77,7 +85,6 @@ class ScanInController extends Controller
             ]);
 
         } catch (Exception $e) {
-            DB::rollBack();
             return response()->json([
                 'status' => 500,
                 'message' => 'Something went wrong! ' . $e->getMessage()
@@ -119,82 +126,78 @@ class ScanInController extends Controller
     }
 
     public function allocatedVehicle(ScanInRequest $request){
-        $validated = $request->validated();
-        try{
-            DB::beginTransaction();
 
-            $lastAllocate = Allocate::where('vehicle_number', $validated['vehicleNumber'])
+        $validated = $request->validated();
+
+        try {
+
+            $allocate = DB::transaction(function () use ($validated) {
+
+                $lastAllocate = Allocate::where('vehicle_number', $validated['vehicleNumber'])
                     ->whereNull('out_time')
                     ->latest('created_at')
                     ->first();
 
-            if ($lastAllocate) {
-                $lastAllocate->update([
-                    'status' => 'OUT',
-                    'out_time' => now()->format('Y-m-d H:i:s'),
+                if ($lastAllocate) {
+                    $lastAllocate->update([
+                        'status' => 'OUT',
+                        'out_time' => now()->format('Y-m-d H:i:s'),
+                    ]);
+                }
+
+                $allocate = Allocate::create([
+                    'location_id' => $validated['locationId'],
+                    'vehicle_number' => $validated['vehicleNumber'],
+                    'qrcode' => Allocate::codeGenerator($validated['locationId']),
                 ]);
-            }
-            $allocate = Allocate::create([
-                            'location_id' => $validated['locationId'],
-                            'vehicle_number' => $validated['vehicleNumber'],
-                            'qrcode' => Allocate::codeGenerator($validated['locationId']),
-                        ]);
 
-            $qrCode = QrCode::format('png')->size(200)->generate($allocate->qrcode);
+                $qrCodeUrl = $this->qrCodeService->generateAndStoreQrCode($allocate->qrcode);
 
-            $fileName = 'qr_code_' . $allocate->qrcode . '.png';
-            Storage::disk('public')->put('qr_codes/' . $fileName, $qrCode);
-            $qrCodeUrl = Storage::url('qr_codes/' . $fileName);
+                ModelsQrCode::create([
+                    'allocate_id' => $allocate->id,
+                    'path' => $qrCodeUrl,
+                ]);
 
-            ModelsQrCode::create([
-                'allocate_id' => $allocate->id,
-                'path' => $qrCodeUrl,
-            ]);
-
-            DB::commit();
+                return $allocate;
+            });
 
             return response()->json([
-                'status' => 200,
                 'message' => 'Allocated successfully',
                 'print_url' => route('scan.getprint', ['allocate' => $allocate]),
-            ]);
+            ], 200);
 
         } catch (Exception $e) {
-            DB::rollBack();
             return response()->json([
-                'status' => 500,
-                'message' => 'Something went wrong: ' . $e->getMessage()
+                'message' => 'Something went wrong: ' . $e->getMessage(),
             ], 500);
         }
     }
 
     public function getPrint(Allocate $allocate){
 
-        if (!$allocate->QRCode) {
-            $qrCode = QrCode::format('png')->size(200)->generate($allocate->qrcode);
+        try {
 
-            $fileName = 'qr_code_' . $allocate->qrcode . '.png';
-            $path = Storage::disk('public')->put('qr_codes/' . $fileName, $qrCode);
-            $qrCodeUrl = Storage::url('qr_codes/' . $fileName);
+            if (!$allocate->qrCode) {
+                $qrCodeUrl = $this->qrCodeService->generateAndStoreQrCode($allocate->qrcode);
 
-            ModelsQRCode::create([
-                'allocate_id' => $allocate->id,
-                'path' => $qrCodeUrl,
-            ]);
-        } else {
-            $filePath = str_replace('/storage', '', $allocate->QRCode->path);
-
-            if (!Storage::disk('public')->exists($filePath)) {
-                $qrCode = QrCode::format('png')->size(200)->generate($allocate->qrcode);
-
-                $fileName = 'qr_code_' . $allocate->qrcode . '.png';
-                $path = Storage::disk('public')->put('qr_codes/' . $fileName, $qrCode);
-                $qrCodeUrl = Storage::url('qr_codes/' . $fileName);
-
-                $allocate->QRCode->update([
+                ModelsQrCode::create([
+                    'allocate_id' => $allocate->id,
                     'path' => $qrCodeUrl,
                 ]);
+            } else {
+
+                $filePath = str_replace('/storage', '', $allocate->qrCode->path);
+
+                if (!Storage::disk('public')->exists($filePath)) {
+                    $qrCodeUrl = $this->qrCodeService->generateAndStoreQrCode($allocate->qrcode);
+
+                    $allocate->qrCode->update([
+                        'path' => $qrCodeUrl,
+                    ]);
+                }
             }
+        } catch (Exception $e) {
+            return redirect()->back();
         }
 
         return view('getPrint', compact('allocate'));
