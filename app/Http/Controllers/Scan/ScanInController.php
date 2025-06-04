@@ -8,6 +8,7 @@ use App\Models\Allocate;
 use App\Models\Location;
 use App\Models\QrCode as ModelsQrCode;
 use App\Models\Vehicle;
+use App\Services\ScanInService;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,8 @@ use Yajra\DataTables\DataTables;
 
 class ScanInController extends Controller
 {
+    public function __construct(protected ScanInService $scanInService) {}
+
     public function index(){
         $vehicles = Vehicle::orderBy('name')->get();
         return view('scan.scanIn', compact( 'vehicles'));
@@ -52,45 +55,20 @@ class ScanInController extends Controller
         }
     }
 
-
     public function store(ScanInRequest $request){
 
         $validated = $request->validated();
 
+        if ($this->scanInService->isVehicleAlreadyAllocated($validated['vehicleNumber'])) {
+            return response()->json([
+                'status' => 409,
+                'message' => 'This vehicle is already allocated and has not checked out.',
+            ]);
+        }
+
         try {
 
-            $lastAllocate = Allocate::where('vehicle_number', $validated['vehicleNumber'])
-                    ->whereNull('out_time')
-                    ->latest('created_at')
-                    ->first();
-
-            if ($lastAllocate) {
-                return response()->json([
-                    'status' => 409,
-                    'message' => 'This vehicle is already allocated and has not checked out.',
-                ]);
-            }
-
-            DB::beginTransaction();
-
-            $allocate = Allocate::create([
-                'location_id' => $validated['locationId'],
-                'vehicle_number' => $validated['vehicleNumber'],
-                'qrcode' => Allocate::codeGenerator($validated['locationId']),
-            ]);
-
-            $qrCode = QrCode::format('png')->size(200)->generate($allocate->qrcode);
-
-            $fileName = 'qr_code_' . $allocate->qrcode . '.png';
-            Storage::disk('public')->put('qr_codes/' . $fileName, $qrCode);
-            $qrCodeUrl = Storage::url('qr_codes/' . $fileName);
-
-            ModelsQrCode::create([
-                'allocate_id' => $allocate->id,
-                'path' => $qrCodeUrl,
-            ]);
-
-            DB::commit();
+            $allocate = $this->scanInService->allocateWithQr($validated);
 
             return response()->json([
                 'status' => 200,
