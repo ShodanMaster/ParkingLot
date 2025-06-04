@@ -23,8 +23,8 @@ class ReportService
                 $query->where('vehicle_number', $filters['vehicle_number']);
             }
 
-            if (!empty($filters['location_id'])) {
-                $query->where('location_id', $filters['location_id']);
+            if (!empty($filters['location'])) {
+                $query->where('location_id', $filters['location']);
             }
 
             if (!empty($filters['status'])) {
@@ -54,7 +54,7 @@ class ReportService
             if (!empty($filters['outTimeTo'])) {
                 $query->whereTime('out_time', '<=', $filters['outTimeTo']);
             }
-
+            
             return $query->with('location')->get();
         });
     }

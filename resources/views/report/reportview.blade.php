@@ -36,7 +36,7 @@
                 to_date: '{{ $filters["to_date"] ?? "" }}',
                 qrcode: '{{ $filters["qrcode"] ?? "" }}',
                 vehicle_number: '{{ $filters["vehicle_number"] ?? "" }}',
-                location: '{{ $filters["location_id"] ?? "" }}',
+                location: '{{ $filters["location"] ?? "" }}',
                 status: '{{ $filters["status"] ?? "" }}',
                 inTimeFrom: '{{ $filters["inTimeFrom"] ?? "" }}',
                 inTimeTo: '{{ $filters["inTimeTo"] ?? "" }}',

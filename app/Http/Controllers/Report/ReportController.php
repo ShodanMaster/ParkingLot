@@ -28,11 +28,6 @@ class ReportController extends Controller
                 'location', 'status', 'inTimeFrom', 'inTimeTo', 'outTimeFrom', 'outTimeTo'
             ]);
 
-            if (isset($filters['location'])) {
-                $filters['location_id'] = $filters['location'];
-                unset($filters['location']);
-            }
-
             $serviceData = $this->reportService->getAllocations($filters);
             $data = $this->reportService->formatForTable($serviceData);
 
@@ -54,11 +49,12 @@ class ReportController extends Controller
 
 
     public function getReports(Request $request){
+        // dd($request->all());
         $filters = $request->all();
         $data = $this->reportService->formatForTable(
             $this->reportService->getAllocations($filters)
         );
-
+        // dd($data);
         return  DataTables::of($data)
                     ->addIndexColumn()
                     ->make(true);
