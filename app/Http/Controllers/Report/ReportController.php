@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Report;
 
 use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
-use App\Models\Allocate;
 use App\Models\Location;
 use App\Services\ReportService;
 use Barryvdh\DomPDF\Facade\Pdf;

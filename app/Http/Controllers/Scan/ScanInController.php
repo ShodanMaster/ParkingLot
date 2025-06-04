@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Scan;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ScanInRequest;
 use App\Models\Allocate;
-use App\Models\Location;
 use App\Services\ScanInService;
 use Exception;
 use Illuminate\Http\Request;

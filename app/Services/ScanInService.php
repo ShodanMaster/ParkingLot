@@ -8,7 +8,6 @@ use App\Models\QrCode as ModelsQrCode;
 use App\Models\Vehicle;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ScanInService
 {

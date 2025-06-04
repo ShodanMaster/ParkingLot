@@ -4,10 +4,8 @@ namespace App\Http\Controllers\Scan;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ScanOutRequest;
-use App\Models\Allocate;
 use App\Services\ScanOutService;
-use Exception;
-use Illuminate\Http\Request;
+use Throwable;
 
 class ScanOutController extends Controller
 {
@@ -27,7 +25,7 @@ class ScanOutController extends Controller
                 'message' => $response['message'],
             ], $response['status']);
 
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             return response()->json([
                 'status' => 500,
                 'message' => 'Something Went Wrong! ' . $e->getMessage()
