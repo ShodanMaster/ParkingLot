@@ -5,34 +5,41 @@ namespace App\Services;
 use App\Models\Location;
 use App\Models\Vehicle;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardService
 {
     public function getAllVehicles(): Collection
     {
-        return Vehicle::all();
+        return Cache::remember('dashboard_all_vehicles', now()->addMinutes(10), function () {
+            return Vehicle::all();
+        });
     }
 
     public function getLocationSummaries(?int $vehicleId = null): Collection
     {
-        $query = Location::with('allocates');
+        $cacheKey = $vehicleId ? "dashboard_locations_vehicle_{$vehicleId}" : 'dashboard_locations_all';
 
-        if ($vehicleId) {
-            $query->where('vehicle_id', $vehicleId);
-        }
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($vehicleId) {
+            $query = Location::with('allocates');
 
-        $locations = $query->get();
+            if ($vehicleId) {
+                $query->where('vehicle_id', $vehicleId);
+            }
 
-        return $locations->map(function ($location) {
-            $allocated = $location->allocates->whereNull('out_time')->count();
+            $locations = $query->get();
 
-            return [
-                'id' => $location->id,
-                'name' => $location->name,
-                'allocated' => $allocated,
-                'available' => $location->slot - $allocated,
-                'totalSlot' => $location->slot,
-            ];
+            return $locations->map(function ($location) {
+                $allocated = $location->allocates->whereNull('out_time')->count();
+
+                return [
+                    'id' => $location->id,
+                    'name' => $location->name,
+                    'allocated' => $allocated,
+                    'available' => $location->slot - $allocated,
+                    'totalSlot' => $location->slot,
+                ];
+            });
         });
     }
 }

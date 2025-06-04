@@ -8,6 +8,7 @@ use App\Models\QrCode as ModelsQrCode;
 use App\Models\Vehicle;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Cache;
 
 class ScanInService
 {
@@ -20,7 +21,9 @@ class ScanInService
 
     public function getAllAllocatesWithLocation()
     {
-        return Allocate::with('location')->latest()->get();
+        return Cache::remember('allocates_with_location', now()->addMinutes(3), function () {
+            return Allocate::with('location')->latest()->get();
+        });
     }
 
     public function allocateWithQr(array $data): Allocate
@@ -33,6 +36,9 @@ class ScanInService
             ]);
 
             $this->generateAndSaveQrCodeForAllocate($allocate);
+
+            Cache::forget('allocates_with_location');
+            Cache::forget('slot_status_' . $data['locationId']);
 
             return $allocate;
         });
@@ -51,6 +57,7 @@ class ScanInService
                     'status' => 'OUT',
                     'out_time' => now(),
                 ]);
+                Cache::forget('slot_status_' . $lastAllocate->location_id);
             }
 
             $allocate = Allocate::create([
@@ -60,6 +67,9 @@ class ScanInService
             ]);
 
             $this->generateAndSaveQrCodeForAllocate($allocate);
+
+            Cache::forget('allocates_with_location');
+            Cache::forget('slot_status_' . $data['locationId']);
 
             return $allocate;
         });
@@ -79,16 +89,18 @@ class ScanInService
 
     public function getSlotStatus(int $locationId): array
     {
-        $location = Location::findOrFail($locationId);
+        return Cache::remember("slot_status_{$locationId}", now()->addMinutes(2), function () use ($locationId) {
+            $location = Location::findOrFail($locationId);
 
-        $totalSlots = $location->slot;
-        $occupiedSlots = Allocate::where('location_id', $locationId)
-            ->whereNull('out_time')
-            ->count();
+            $totalSlots = $location->slot;
+            $occupiedSlots = Allocate::where('location_id', $locationId)
+                ->whereNull('out_time')
+                ->count();
 
-        $availableSlots = $totalSlots - $occupiedSlots;
+            $availableSlots = $totalSlots - $occupiedSlots;
 
-        return compact('totalSlots', 'occupiedSlots', 'availableSlots');
+            return compact('totalSlots', 'occupiedSlots', 'availableSlots');
+        });
     }
 
     public function isVehicleAlreadyAllocated(string $vehicleNumber): bool

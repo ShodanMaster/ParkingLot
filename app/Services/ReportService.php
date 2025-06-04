@@ -3,98 +3,82 @@
 namespace App\Services;
 
 use App\Models\Allocate;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class ReportService
 {
-    /**
-     * Get all allocations with optional filters.
-     *
-     * @param array $filters
-     *     Possible keys: qrcode, vehicle_number, location_id, status,
-     *     from_date, to_date, inTimeFrom, inTimeTo, outTimeFrom, outTimeTo
-     * @return Collection
-     */
     public function getAllocations(array $filters): Collection
     {
-        $query = Allocate::query();
+        $cacheKey = $this->buildCacheKey('allocations', $filters);
 
-        if (!empty($filters['qrcode'])) {
-            $query->where('qrcode', $filters['qrcode']);
-        }
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($filters) {
+            $query = Allocate::query();
 
-        if (!empty($filters['vehicle_number'])) {
-            $query->where('vehicle_number', $filters['vehicle_number']);
-        }
+            if (!empty($filters['qrcode'])) {
+                $query->where('qrcode', $filters['qrcode']);
+            }
 
-        if (!empty($filters['location_id'])) {
-            $query->where('location_id', $filters['location_id']);
-        }
+            if (!empty($filters['vehicle_number'])) {
+                $query->where('vehicle_number', $filters['vehicle_number']);
+            }
 
-        if (!empty($filters['status'])) {
-            $query->where('status', $filters['status']);
-        }
+            if (!empty($filters['location_id'])) {
+                $query->where('location_id', $filters['location_id']);
+            }
 
-        if (!empty($filters['from_date'])) {
-            $query->whereDate('created_at', '>=', $filters['from_date']);
-        }
+            if (!empty($filters['status'])) {
+                $query->where('status', $filters['status']);
+            }
 
-        if (!empty($filters['to_date'])) {
-            $query->whereDate('created_at', '<=', $filters['to_date']);
-        }
+            if (!empty($filters['from_date'])) {
+                $query->whereDate('created_at', '>=', $filters['from_date']);
+            }
 
-        if (!empty($filters['inTimeFrom'])) {
-            $query->whereTime('in_time', '>=', $filters['inTimeFrom']);
-        }
+            if (!empty($filters['to_date'])) {
+                $query->whereDate('created_at', '<=', $filters['to_date']);
+            }
 
-        if (!empty($filters['inTimeTo'])) {
-            $query->whereTime('in_time', '<=', $filters['inTimeTo']);
-        }
+            if (!empty($filters['inTimeFrom'])) {
+                $query->whereTime('in_time', '>=', $filters['inTimeFrom']);
+            }
 
-        if (!empty($filters['outTimeFrom'])) {
-            $query->whereTime('out_time', '>=', $filters['outTimeFrom']);
-        }
+            if (!empty($filters['inTimeTo'])) {
+                $query->whereTime('in_time', '<=', $filters['inTimeTo']);
+            }
 
-        if (!empty($filters['outTimeTo'])) {
-            $query->whereTime('out_time', '<=', $filters['outTimeTo']);
-        }
+            if (!empty($filters['outTimeFrom'])) {
+                $query->whereTime('out_time', '>=', $filters['outTimeFrom']);
+            }
 
-        return $query->with('location')->get();
+            if (!empty($filters['outTimeTo'])) {
+                $query->whereTime('out_time', '<=', $filters['outTimeTo']);
+            }
+
+            return $query->with('location')->get();
+        });
     }
 
-    /**
-     * Get summarized report like total IN/OUT count and optionally revenue.
-     *
-     * @param array $filters
-     * @return array
-     */
     public function getSummary(array $filters): array
     {
-        $allocations = $this->getAllocations($filters);
+        $cacheKey = $this->buildCacheKey('summary', $filters);
 
-        $inCount = $allocations->whereNull('out_time')->count();
-        $outCount = $allocations->whereNotNull('out_time')->count();
+        return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($filters) {
+            $allocations = $this->getAllocations($filters);
 
-        // Optional: calculate fees/revenue in future
-        // $revenue = $allocations->sum('fee');
+            $inCount = $allocations->whereNull('out_time')->count();
+            $outCount = $allocations->whereNotNull('out_time')->count();
 
-        return [
-            'total' => $allocations->count(),
-            'in_count' => $inCount,
-            'out_count' => $outCount,
-            // 'revenue' => $revenue,
-        ];
+            return [
+                'total' => $allocations->count(),
+                'in_count' => $inCount,
+                'out_count' => $outCount,
+            ];
+        });
     }
 
-    /**
-     * Format allocations for frontend DataTable.
-     *
-     * @param Collection $allocations
-     * @return Collection
-     */
-    public function formatForTable(Collection $allocations): array{
-        
+    public function formatForTable(Collection $allocations): array
+    {
         return $allocations->map(function ($r, $index) {
             return [
                 'DT_RowIndex'    => $index + 1,
@@ -108,4 +92,9 @@ class ReportService
         })->toArray();
     }
 
+    protected function buildCacheKey(string $prefix, array $filters): string
+    {
+        ksort($filters);
+        return $prefix . '_' . md5(json_encode($filters));
+    }
 }
