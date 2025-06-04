@@ -57,7 +57,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('/print/{allocate}', [ScanInController::class, 'getPrint'])->name('getprint');
 
             Route::get('/scan-out', [ScanOutController::class, 'index'])->name('scanout');
-            Route::post('scanning-out', [ScanOutController::class, 'scanOut'])->name('scanningout');
+            Route::post('scanning-out', [ScanOutController::class, 'store'])->name('scanningout');
 
         });
 
