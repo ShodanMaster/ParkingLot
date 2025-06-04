@@ -32,16 +32,16 @@
     <script>
         $(document).ready(function () {
             const filterParams = {
-                from_date: '{{$fromDate}}',
-                to_date: '{{$toDate}}',
-                qrcode: '{{$qrcode}}',
-                vehicle_number: '{{$vehicleNumber}}',
-                location: '{{$location}}',
-                status: '{{$status}}',
-                inTimeFrom: '{{$inTimeFrom}}',
-                inTimeTo: '{{$inTimeTo}}',
-                outTimeFrom: '{{$outTimeFrom}}',
-                outTimeTo: '{{$outTimeTo}}',
+                from_date: '{{ $filters["from_date"] ?? "" }}',
+                to_date: '{{ $filters["to_date"] ?? "" }}',
+                qrcode: '{{ $filters["qrcode"] ?? "" }}',
+                vehicle_number: '{{ $filters["vehicle_number"] ?? "" }}',
+                location: '{{ $filters["location_id"] ?? "" }}',
+                status: '{{ $filters["status"] ?? "" }}',
+                inTimeFrom: '{{ $filters["inTimeFrom"] ?? "" }}',
+                inTimeTo: '{{ $filters["inTimeTo"] ?? "" }}',
+                outTimeFrom: '{{ $filters["outTimeFrom"] ?? "" }}',
+                outTimeTo: '{{ $filters["outTimeTo"] ?? "" }}',
                 _token: '{{ csrf_token() }}'
             };
 
