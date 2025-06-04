@@ -18,11 +18,6 @@ class ScanInService
         $this->qrCodeService = $qrCodeService;
     }
 
-    public function getAllVehiclesOrderedByName()
-    {
-        return Vehicle::orderBy('name')->get();
-    }
-
     public function getAllAllocatesWithLocation()
     {
         return Allocate::with('location')->latest()->get();
