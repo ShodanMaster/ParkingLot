@@ -4,20 +4,28 @@ namespace App\Services;
 
 use App\Models\Location;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 class LocationService
 {
     public function getAllWithVehicles(): Collection
     {
-        return Location::with('vehicle')->get();
+        return Cache::remember('locations_with_vehicles', now()->addMinutes(5), function () {
+            return Location::with('vehicle')->get();
+        });
     }
 
     public function create(array $data): Location
     {
-        return Location::create([
+        $location = Location::create([
             'vehicle_id' => $data['vehicleId'],
             'name' => $data['locationName'],
         ]);
+
+        Cache::forget('locations_with_vehicles');
+        Cache::forget("locations_by_vehicle_{$data['vehicleId']}");
+
+        return $location;
     }
 
     public function update(int $id, array $data): Location
@@ -28,19 +36,30 @@ class LocationService
             'name' => $data['locationName'],
             'slot' => $data['slot'] ?? null,
         ]);
+
+        Cache::forget('locations_with_vehicles');
+        Cache::forget("locations_by_vehicle_{$data['vehicleId']}");
+
         return $location;
     }
 
     public function delete(int $id): void
     {
-        Location::findOrFail($id)->delete();
+        $location = Location::findOrFail($id);
+        $vehicleId = $location->vehicle_id;
+        $location->delete();
+
+        Cache::forget('locations_with_vehicles');
+        Cache::forget("locations_by_vehicle_{$vehicleId}");
     }
 
     public function getByVehicle(int $vehicleId): Collection
     {
-        return Location::where('vehicle_id', $vehicleId)
-            ->select('id', 'name')
-            ->orderBy('name')
-            ->get();
+        return Cache::remember("locations_by_vehicle_{$vehicleId}", now()->addMinutes(5), function () use ($vehicleId) {
+            return Location::where('vehicle_id', $vehicleId)
+                ->select('id', 'name')
+                ->orderBy('name')
+                ->get();
+        });
     }
 }

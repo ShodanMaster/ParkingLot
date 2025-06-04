@@ -3,22 +3,35 @@
 namespace App\Services;
 
 use App\Models\Vehicle;
+use Illuminate\Support\Facades\Cache;
 
 class VehicleService
 {
+    protected string $allVehiclesKey = 'vehicles_all';
+    protected string $vehiclesOrderedKey = 'vehicles_ordered';
+
     public function getAllVehicles()
     {
-        return Vehicle::all();
+        return Cache::remember($this->allVehiclesKey, now()->addMinutes(10), function () {
+            return Vehicle::all();
+        });
     }
 
     public function getAllOrderedByName()
     {
-        return Vehicle::orderBy('name')->get();
+        return Cache::remember($this->vehiclesOrderedKey, now()->addMinutes(10), function () {
+            return Vehicle::orderBy('name')->get();
+        });
     }
 
     public function createVehicle(string $name): Vehicle
     {
-        return Vehicle::create(['name' => $name]);
+        $vehicle =  Vehicle::create(['name' => $name]);
+
+        Cache::forget($this->allVehiclesKey);
+        Cache::forget($this->vehiclesOrderedKey);
+
+        return $vehicle;
     }
 
     public function updateVehicle(int $id, string $name): ?Vehicle
@@ -26,12 +39,20 @@ class VehicleService
         $vehicle = Vehicle::find($id);
         if ($vehicle) {
             $vehicle->update(['name' => $name]);
+
+            Cache::forget($this->allVehiclesKey);
+            Cache::forget($this->vehiclesOrderedKey);
         }
+
         return $vehicle;
     }
 
     public function deleteVehicle(int $id): void
     {
-        Vehicle::findOrFail($id)->delete();
+        $vehicle = Vehicle::findOrFail($id);
+        $vehicle->delete();
+
+        Cache::forget($this->allVehiclesKey);
+        Cache::forget($this->vehiclesOrderedKey);
     }
 }
