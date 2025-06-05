@@ -37,8 +37,7 @@ class ScanInService
 
             $this->generateAndSaveQrCodeForAllocate($allocate);
 
-            Cache::forget('allocates_with_location');
-            Cache::forget('slot_status_' . $data['locationId']);
+            $this->clearCache($data['locationId']);
 
             return $allocate;
         });
@@ -68,8 +67,7 @@ class ScanInService
 
             $this->generateAndSaveQrCodeForAllocate($allocate);
 
-            Cache::forget('allocates_with_location');
-            Cache::forget('slot_status_' . $data['locationId']);
+            $this->clearCache($data['locationId']);
 
             return $allocate;
         });
@@ -117,5 +115,10 @@ class ScanInService
         }
 
         return $allocate->qrCode->path;
+    }
+
+    private function clearCache($id): void{
+        Cache::forget('allocates_with_location');
+        Cache::forget('slot_status_'.$id);
     }
 }

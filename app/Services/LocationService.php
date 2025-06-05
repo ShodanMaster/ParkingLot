@@ -22,8 +22,7 @@ class LocationService
             'name' => $data['locationName'],
         ]);
 
-        Cache::forget('locations_with_vehicles');
-        Cache::forget("locations_by_vehicle_{$data['vehicleId']}");
+        $this->clearCache($data['vehicleId']);
 
         return $location;
     }
@@ -37,8 +36,8 @@ class LocationService
             'slot' => $data['slot'] ?? null,
         ]);
 
-        Cache::forget('locations_with_vehicles');
-        Cache::forget("locations_by_vehicle_{$data['vehicleId']}");
+        $this->clearCache($id);
+
 
         return $location;
     }
@@ -49,8 +48,8 @@ class LocationService
         $vehicleId = $location->vehicle_id;
         $location->delete();
 
-        Cache::forget('locations_with_vehicles');
-        Cache::forget("locations_by_vehicle_{$vehicleId}");
+        $this->clearCache($vehicleId);
+
     }
 
     public function getByVehicle(int $vehicleId): Collection
@@ -61,5 +60,10 @@ class LocationService
                 ->orderBy('name')
                 ->get();
         });
+    }
+
+    private function clearCache($id): void{
+        Cache::forget('locations_with_vehicles');
+        Cache::forget('locations_by_vehicle_'.$id);
     }
 }

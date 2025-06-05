@@ -28,21 +28,17 @@ class VehicleService
     {
         $vehicle =  Vehicle::create(['name' => $name]);
 
-        Cache::forget($this->allVehiclesKey);
-        Cache::forget($this->vehiclesOrderedKey);
+        $this->clearCache();
 
         return $vehicle;
     }
 
     public function updateVehicle(int $id, string $name): ?Vehicle
     {
-        $vehicle = Vehicle::find($id);
-        if ($vehicle) {
-            $vehicle->update(['name' => $name]);
+        $vehicle = Vehicle::findOrFail($id);
+        $vehicle->update(['name' => $name]);
 
-            Cache::forget($this->allVehiclesKey);
-            Cache::forget($this->vehiclesOrderedKey);
-        }
+        $this->clearCache();
 
         return $vehicle;
     }
@@ -52,7 +48,13 @@ class VehicleService
         $vehicle = Vehicle::findOrFail($id);
         $vehicle->delete();
 
+        $this->clearCache();
+    }
+
+    private function clearCache(): void
+    {
         Cache::forget($this->allVehiclesKey);
         Cache::forget($this->vehiclesOrderedKey);
     }
+
 }
