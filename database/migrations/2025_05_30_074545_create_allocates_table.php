@@ -20,6 +20,13 @@ return new class extends Migration
             $table->timestamp('out_time')->nullable();
             $table->string('qrcode')->unique();
             $table->timestamps();
+
+            $table->index('location_id');
+            $table->index('vehicle_number');
+            $table->index('status');
+            $table->index('in_time');
+            $table->index('out_time');
+            $table->index('created_at');
         });
     }
 

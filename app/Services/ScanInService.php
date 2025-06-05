@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\Allocate;
 use App\Models\Location;
 use App\Models\QrCode as ModelsQrCode;
-use App\Models\Vehicle;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
@@ -21,8 +20,11 @@ class ScanInService
 
     public function getAllAllocatesWithLocation()
     {
-        return Cache::remember('allocates_with_location', now()->addMinutes(3), function () {
-            return Allocate::with('location')->latest()->get();
+        return Cache::remember('cache:allocates:with-location', now()->addMinutes(3), function () {
+            return Allocate::with(['location:id,name,slot'])
+                ->select('id', 'location_id', 'vehicle_number', 'status', 'in_time', 'out_time', 'qrcode', 'created_at')
+                ->latest()
+                ->get();
         });
     }
 
@@ -32,6 +34,7 @@ class ScanInService
             $allocate = Allocate::create([
                 'location_id' => $data['locationId'],
                 'vehicle_number' => $data['vehicleNumber'],
+                'status' => 'IN',
                 'qrcode' => Allocate::codeGenerator($data['locationId']),
             ]);
 
@@ -47,16 +50,22 @@ class ScanInService
     {
         return DB::transaction(function () use ($data) {
             $lastAllocate = Allocate::where('vehicle_number', $data['vehicleNumber'])
+                ->select('id', 'location_id', 'created_at')
                 ->whereNull('out_time')
                 ->latest('created_at')
                 ->first();
 
             if ($lastAllocate) {
+                if ($lastAllocate->created_at->gt(now()->subSeconds(10))) {
+                    throw new \Exception('Vehicle was just scanned recently. Please wait a few seconds.');
+                }
+
                 $lastAllocate->update([
                     'status' => 'OUT',
                     'out_time' => now(),
                 ]);
-                Cache::forget('slot_status_' . $lastAllocate->location_id);
+
+                Cache::forget('cache:slot-status:location:' . $lastAllocate->location_id);
             }
 
             $allocate = Allocate::create([
@@ -77,18 +86,24 @@ class ScanInService
     {
         $qrCodeUrl = $this->qrCodeService->generateAndStoreQrCode($allocate->qrcode);
 
-        ModelsQrCode::updateOrCreate(
-            ['allocate_id' => $allocate->id],
-            ['path' => $qrCodeUrl]
-        );
+        $existing = ModelsQrCode::where('allocate_id', $allocate->id)
+            ->select('id', 'path')
+            ->first();
+
+        if (!$existing || $existing->path !== $qrCodeUrl) {
+            ModelsQrCode::updateOrCreate(
+                ['allocate_id' => $allocate->id],
+                ['path' => $qrCodeUrl]
+            );
+        }
 
         return $qrCodeUrl;
     }
 
     public function getSlotStatus(int $locationId): array
     {
-        return Cache::remember("slot_status_{$locationId}", now()->addMinutes(2), function () use ($locationId) {
-            $location = Location::findOrFail($locationId);
+        return Cache::remember("cache:slot-status:location:{$locationId}", now()->addMinutes(2), function () use ($locationId) {
+            $location = Location::select('id', 'slot')->findOrFail($locationId);
 
             $totalSlots = $location->slot;
             $occupiedSlots = Allocate::where('location_id', $locationId)
@@ -117,8 +132,9 @@ class ScanInService
         return $allocate->qrCode->path;
     }
 
-    private function clearCache($id): void{
-        Cache::forget('allocates_with_location');
-        Cache::forget('slot_status_'.$id);
+    private function clearCache($id): void
+    {
+        Cache::forget('cache:allocates:with-location');
+        Cache::forget("cache:slot-status:location:{$id}");
     }
 }

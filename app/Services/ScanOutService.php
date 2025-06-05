@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Allocate;
-use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 
 class ScanOutService
 {
@@ -15,7 +15,9 @@ class ScanOutService
      */
     public function handle(string $code): array
     {
-        $allocate = Allocate::where('qrcode', $code)->first();
+        $allocate = Allocate::select('id', 'location_id', 'out_time')
+            ->where('qrcode', $code)
+            ->first();
 
         if (! $allocate) {
             return [
@@ -33,8 +35,11 @@ class ScanOutService
 
         $allocate->update([
             'status' => 'OUT',
-            'out_time' => Carbon::now(),
+            'out_time' => now(),
         ]);
+        
+        Cache::forget('allocates_with_location');
+        Cache::forget('slot_status_' . $allocate->location_id);
 
         return [
             'status' => 200,

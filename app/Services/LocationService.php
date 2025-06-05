@@ -8,13 +8,21 @@ use Illuminate\Support\Facades\Cache;
 
 class LocationService
 {
+    /**
+     * Get all locations with their associated vehicles.
+     */
     public function getAllWithVehicles(): Collection
     {
         return Cache::remember('locations_with_vehicles', now()->addMinutes(5), function () {
-            return Location::with('vehicle')->get();
+            return Location::with(['vehicle:id,name'])
+                ->select('id', 'name', 'vehicle_id', 'slot')
+                ->get();
         });
     }
 
+    /**
+     * Create a new location.
+     */
     public function create(array $data): Location
     {
         $location = Location::create([
@@ -27,31 +35,39 @@ class LocationService
         return $location;
     }
 
-    public function update(int $id, array $data): Location
+    /**
+     * Update a location by ID.
+     */
+    public function update(int $locationId, array $data): Location
     {
-        $location = Location::findOrFail($id);
+        $location = Location::findOrFail($locationId);
+
         $location->update([
             'vehicle_id' => $data['vehicleId'],
             'name' => $data['locationName'],
             'slot' => $data['slot'] ?? null,
         ]);
 
-        $this->clearCache($id);
-
+        $this->clearCache($location->vehicle_id);
 
         return $location;
     }
 
-    public function delete(int $id): void
+    /**
+     * Delete a location by ID.
+     */
+    public function delete(int $locationId): void
     {
-        $location = Location::findOrFail($id);
+        $location = Location::findOrFail($locationId);
         $vehicleId = $location->vehicle_id;
         $location->delete();
 
         $this->clearCache($vehicleId);
-
     }
 
+    /**
+     * Get locations for a specific vehicle.
+     */
     public function getByVehicle(int $vehicleId): Collection
     {
         return Cache::remember("locations_by_vehicle_{$vehicleId}", now()->addMinutes(5), function () use ($vehicleId) {
@@ -62,8 +78,12 @@ class LocationService
         });
     }
 
-    private function clearCache($id): void{
+    /**
+     * Clear location-related cache.
+     */
+    private function clearCache(int $vehicleId): void
+    {
         Cache::forget('locations_with_vehicles');
-        Cache::forget('locations_by_vehicle_'.$id);
+        Cache::forget("locations_by_vehicle_{$vehicleId}");
     }
 }

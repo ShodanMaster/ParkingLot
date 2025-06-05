@@ -21,7 +21,10 @@ class DashboardService
         $cacheKey = $vehicleId ? "dashboard_locations_vehicle_{$vehicleId}" : 'dashboard_locations_all';
 
         return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($vehicleId) {
-            $query = Location::with('allocates');
+            $query = Location::with(['allocates' => function ($q) {
+                $q->select('id', 'location_id', 'out_time');
+            }])->select('id', 'name', 'slot', 'vehicle_id');
+
 
             if ($vehicleId) {
                 $query->where('vehicle_id', $vehicleId);

@@ -10,10 +10,12 @@ class ReportService
 {
     public function getAllocations(array $filters): Collection
     {
-        $cacheKey = $this->buildCacheKey('allocations', $filters);
+        $cacheKey = $this->buildCacheKey('report:allocations', $filters);
 
         return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($filters) {
-            $query = Allocate::query();
+            $query = Allocate::query()
+                ->select('id', 'location_id', 'vehicle_number', 'qrcode', 'status', 'in_time', 'out_time', 'created_at')
+                ->with(['location:id,name']); // Only necessary fields from related model
 
             if (!empty($filters['qrcode'])) {
                 $query->where('qrcode', $filters['qrcode']);
@@ -54,25 +56,22 @@ class ReportService
             if (!empty($filters['outTimeTo'])) {
                 $query->whereTime('out_time', '<=', $filters['outTimeTo']);
             }
-            
-            return $query->with('location')->get();
+
+            return $query->get();
         });
     }
 
     public function getSummary(array $filters): array
     {
-        $cacheKey = $this->buildCacheKey('summary', $filters);
+        $cacheKey = $this->buildCacheKey('report:summary', $filters);
 
         return Cache::remember($cacheKey, now()->addMinutes(5), function () use ($filters) {
-            $allocations = $this->getAllocations($filters);
-
-            $inCount = $allocations->whereNull('out_time')->count();
-            $outCount = $allocations->whereNotNull('out_time')->count();
+            $allocations = $this->getAllocations($filters); // Cached call
 
             return [
                 'total' => $allocations->count(),
-                'in_count' => $inCount,
-                'out_count' => $outCount,
+                'in_count' => $allocations->whereNull('out_time')->count(),
+                'out_count' => $allocations->whereNotNull('out_time')->count(),
             ];
         });
     }
@@ -95,6 +94,6 @@ class ReportService
     protected function buildCacheKey(string $prefix, array $filters): string
     {
         ksort($filters);
-        return $prefix . '_' . md5(json_encode($filters));
+        return $prefix . ':' . md5(json_encode($filters));
     }
 }
