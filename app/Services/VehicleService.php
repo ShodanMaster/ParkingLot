@@ -13,7 +13,7 @@ class VehicleService
     public function getAllVehicles()
     {
         return Cache::remember($this->allVehiclesKey, now()->addMinutes(10), function () {
-            return Vehicle::all();
+            return Vehicle::select(['id', 'name'])->get();
         });
     }
 

@@ -12,7 +12,7 @@ class DashboardService
     public function getAllVehicles(): Collection
     {
         return Cache::remember('dashboard_all_vehicles', now()->addMinutes(10), function () {
-            return Vehicle::all();
+            return Vehicle::select(['id', 'name'])->get();
         });
     }
 
